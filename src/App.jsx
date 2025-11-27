@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
 import Layout from "./layout/Layout";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import Students from "./pages/Students";
 import Teachers from "./pages/Teachers";
 import Formations from "./pages/Formations";
@@ -17,10 +19,21 @@ import Certificates from "./pages/Certificates";
 export default function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Routes (Wrapped in Layout) */}
+        <Route
+          element={
+            <Layout>
+              <Outlet />
+            </Layout>
+          }
+        >
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/students" element={<Students />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/formations" element={<Formations />} />
@@ -33,8 +46,8 @@ export default function App() {
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/certificates" element={<Certificates />} />
-        </Routes>
-      </Layout>
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }

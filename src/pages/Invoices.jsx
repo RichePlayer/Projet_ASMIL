@@ -175,44 +175,47 @@ export default function Invoices() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-green-100">
-          <CardContent className="p-6">
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="stagger-item shadow-xl border-0 bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700">Revenus Totaux</p>
-                <h3 className="text-3xl font-bold text-green-900 mt-2">{totalRevenue.toLocaleString()} Ar</h3>
+                <p className="text-sm font-bold text-emerald-700 mb-2">Revenus Totaux</p>
+                <h3 className="text-4xl font-black text-emerald-900 tracking-tight">{totalRevenue.toLocaleString()} Ar</h3>
               </div>
-              <div className="p-3 rounded-xl bg-green-600 shadow-lg">
-                <DollarSign className="h-6 w-6 text-white" />
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-xl shadow-emerald-600/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <DollarSign className="h-8 w-8 text-white animate-pulse-slow" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-red-50 to-red-100">
-          <CardContent className="p-6">
+        <Card className="stagger-item shadow-xl border-0 bg-gradient-to-br from-red-50 via-red-100 to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-700">En Attente</p>
-                <h3 className="text-3xl font-bold text-red-900 mt-2">{totalPending.toLocaleString()} Ar</h3>
+                <p className="text-sm font-bold text-red-700 mb-2">En Attente</p>
+                <h3 className="text-4xl font-black text-red-900 tracking-tight">{totalPending.toLocaleString()} Ar</h3>
               </div>
-              <div className="p-3 rounded-xl bg-red-600 shadow-lg">
-                <TrendingUp className="h-6 w-6 text-white" />
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 shadow-xl shadow-red-600/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <TrendingUp className="h-8 w-8 text-white animate-pulse-slow" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-orange-50 to-orange-100">
-          <CardContent className="p-6">
+        <Card className="stagger-item shadow-xl border-0 bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700">Factures en Retard</p>
-                <h3 className="text-3xl font-bold text-orange-900 mt-2">{totalOverdue}</h3>
+                <p className="text-sm font-bold text-orange-700 mb-2">Factures en Retard</p>
+                <h3 className="text-4xl font-black text-orange-900 tracking-tight">{totalOverdue}</h3>
               </div>
-              <div className="p-3 rounded-xl bg-orange-600 shadow-lg">
-                <AlertCircle className="h-6 w-6 text-white" />
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-600 to-orange-700 shadow-xl shadow-orange-600/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <AlertCircle className="h-8 w-8 text-white animate-pulse-slow" />
               </div>
             </div>
           </CardContent>
@@ -231,16 +234,16 @@ export default function Invoices() {
       </div>
 
       {/* Table */}
-      <Card className="shadow-lg border-0">
+      <Card className="shadow-xl border-0 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50">
-              <TableHead className="font-bold">N° Facture</TableHead>
-              <TableHead className="font-bold">Étudiant</TableHead>
-              <TableHead className="font-bold">Montant</TableHead>
-              <TableHead className="font-bold">Date d'Échéance</TableHead>
-              <TableHead className="font-bold">Statut</TableHead>
-              <TableHead className="font-bold text-right">Actions</TableHead>
+            <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100 border-b-2 border-slate-200">
+              <TableHead className="font-black text-slate-700">N° Facture</TableHead>
+              <TableHead className="font-black text-slate-700">Étudiant</TableHead>
+              <TableHead className="font-black text-slate-700">Montant</TableHead>
+              <TableHead className="font-black text-slate-700">Date d'Échéance</TableHead>
+              <TableHead className="font-black text-slate-700">Statut</TableHead>
+              <TableHead className="font-black text-slate-700 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -267,18 +270,18 @@ export default function Invoices() {
 
                 return (
                   <React.Fragment key={invoice.id}>
-                    <TableRow className="hover:bg-slate-50 transition-colors">
-                      <TableCell className="font-mono text-sm">{invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}</TableCell>
-                      <TableCell className="font-medium">{getStudentName(invoice.enrollment_id)}</TableCell>
+                    <TableRow className="hover:bg-gradient-to-r hover:from-slate-50 hover:to-transparent transition-all duration-300 border-b border-slate-100 group">
+                      <TableCell className="font-mono text-sm font-bold text-slate-700">{invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}</TableCell>
+                      <TableCell className="font-semibold text-slate-900">{getStudentName(invoice.enrollment_id)}</TableCell>
                       <TableCell className="font-bold text-lg">
-                        <div>{invoice.amount?.toLocaleString()} Ar</div>
-                        <div className="text-sm text-slate-500">
+                        <div className="text-slate-900">{invoice.amount?.toLocaleString()} Ar</div>
+                        <div className="text-xs text-slate-500 font-normal">
                           Payé: {paid.toLocaleString()} Ar • Reste: {reste.toLocaleString()} Ar
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-600">{invoice.due_date ? format(new Date(invoice.due_date), "d MMM yyyy", { locale: fr }) : "-"}</TableCell>
+                      <TableCell className="text-slate-600 font-medium">{invoice.due_date ? format(new Date(invoice.due_date), "d MMM yyyy", { locale: fr }) : "-"}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`${invoice.status === "payée" ? "bg-green-100 text-green-800 border-green-200" : invoice.status === "partielle" ? "bg-orange-100 text-orange-800 border-orange-200" : "bg-red-100 text-red-800 border-red-200"} border`}>
+                        <Badge variant="outline" className={`${invoice.status === "payée" ? "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold" : invoice.status === "partielle" ? "bg-amber-100 text-amber-800 border-amber-300 font-bold" : "bg-red-100 text-red-800 border-red-300 font-bold"} border-2`}>
                           {invoice.status}
                         </Badge>
                       </TableCell>
@@ -402,7 +405,7 @@ export default function Invoices() {
                     setShowReceiptChooser(false);
                   }}
                 >
-                  <span>{p.method} — { (p.amount || 0).toLocaleString() } Ar</span>
+                  <span>{p.method} — {(p.amount || 0).toLocaleString()} Ar</span>
                   <span className="text-xs text-slate-500">
                     {p.created_date ? format(new Date(p.created_date), "d MMM yyyy HH:mm", { locale: fr }) : ""}
                   </span>
