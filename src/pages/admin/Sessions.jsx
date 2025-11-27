@@ -8,9 +8,9 @@ import { Calendar, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SessionFormDialog from "../components/sessions/SessionFormDialog";
-import SessionCard from "../components/sessions/SessionCard";
-import SessionCalendarAdvanced from "../components/sessions/SessionCalendarAdvanced";
+import SessionFormDialog from "@/components/sessions/SessionFormDialog";
+import SessionCard from "@/components/sessions/SessionCard";
+import SessionCalendarAdvanced from "@/components/sessions/SessionCalendarAdvanced";
 
 export default function Sessions() {
   const [showForm, setShowForm] = useState(false);
@@ -92,9 +92,8 @@ export default function Sessions() {
           return (
             <Card
               key={status}
-              className={`cursor-pointer transition-all hover:shadow-lg ${colors[status]} ${
-                statusFilter === status ? "ring-2 ring-red-500" : ""
-              }`}
+              className={`cursor-pointer transition-all hover:shadow-lg ${colors[status]} ${statusFilter === status ? "ring-2 ring-red-500" : ""
+                }`}
               onClick={() => setStatusFilter(status)}
             >
               <CardContent className="p-4 text-center">

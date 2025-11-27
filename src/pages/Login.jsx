@@ -1,27 +1,47 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Lock, Mail, ArrowRight } from "lucide-react";
+import { Loader2, Lock, Mail, ArrowRight, User, ShieldCheck } from "lucide-react";
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("secretaire@asmil.mg");
     const [password, setPassword] = useState("password");
+    const [error, setError] = useState("");
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setError("");
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const user = await login(email, password);
+            if (user.role === "Admin") {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/secretary/dashboard");
+            }
+        } catch (err) {
+            setError("Email ou mot de passe incorrect.");
+        } finally {
             setIsLoading(false);
-            navigate("/dashboard");
-        }, 1500);
+        }
+    };
+
+    const fillCredentials = (role) => {
+        if (role === "admin") {
+            setEmail("admin@asmil.mg");
+            setPassword("admin123");
+        } else {
+            setEmail("secretaire@asmil.mg");
+            setPassword("password");
+        }
     };
 
     return (
@@ -64,6 +84,28 @@ export default function Login() {
                         <p className="text-slate-500 mt-2 text-sm">Accédez à votre espace de gestion</p>
                     </div>
 
+                    {/* Demo Credentials Buttons */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                        <Button
+                            variant="outline"
+                            className="flex flex-col h-auto py-3 border-slate-200 hover:border-red-200 hover:bg-red-50/50"
+                            onClick={() => fillCredentials("user")}
+                        >
+                            <User className="h-5 w-5 text-slate-600 mb-1" />
+                            <span className="text-xs font-bold text-slate-700">Secrétaire</span>
+                            <span className="text-[10px] text-slate-400">Utilisateur</span>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="flex flex-col h-auto py-3 border-slate-200 hover:border-red-200 hover:bg-red-50/50"
+                            onClick={() => fillCredentials("admin")}
+                        >
+                            <ShieldCheck className="h-5 w-5 text-red-600 mb-1" />
+                            <span className="text-xs font-bold text-slate-700">Admin</span>
+                            <span className="text-[10px] text-slate-400">Administrateur</span>
+                        </Button>
+                    </div>
+
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-5">
                             <div className="space-y-2">
@@ -99,15 +141,11 @@ export default function Login() {
                             </div>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <Checkbox id="remember" className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600" />
-                            <label
-                                htmlFor="remember"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600"
-                            >
-                                Rester connecté
-                            </label>
-                        </div>
+                        {error && (
+                            <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-2 rounded-lg">
+                                {error}
+                            </div>
+                        )}
 
                         <Button
                             type="submit"

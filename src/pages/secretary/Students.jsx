@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import StudentFormDialog from "../components/students/StudentFormDialog";
-import StudentDetailDialog from "../components/students/StudentDetailDialog";
+import StudentFormDialog from "@/components/students/StudentFormDialog";
+import StudentDetailDialog from "@/components/students/StudentDetailDialog";
 import { toast } from "sonner";
 
 export default function Students() {
@@ -181,8 +181,8 @@ export default function Students() {
                   <TableCell>
                     {s.enrollment_date
                       ? format(new Date(s.enrollment_date), "d MMM yyyy", {
-                          locale: fr,
-                        })
+                        locale: fr,
+                      })
                       : "-"}
                   </TableCell>
                   <TableCell>

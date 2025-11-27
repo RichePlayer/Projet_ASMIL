@@ -17,7 +17,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import ModuleFormDialog from "../components/modules/ModuleFormDialog";
+import ModuleFormDialog from "@/components/modules/ModuleFormDialog";
 import { toast } from "sonner";
 
 export default function Modules() {

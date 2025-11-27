@@ -193,9 +193,6 @@ export default function Dashboard() {
                 <CardTitle className="text-lg font-bold text-slate-900">Aperçu des Revenus</CardTitle>
                 <CardDescription>Évolution financière sur les 6 derniers mois</CardDescription>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full"><Download className="h-4 w-4 text-slate-400" /></Button>
-              </div>
             </CardHeader>
             <CardContent className="pl-0">
               <RevenueChart data={revenueByMonth} />

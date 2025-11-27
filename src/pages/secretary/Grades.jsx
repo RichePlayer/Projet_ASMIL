@@ -31,8 +31,8 @@ import {
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-import GradeSheet from "../components/grades/GradeSheet";
-import GradeFormDialog from "../components/grades/GradeFormDialog";
+import GradeSheet from "@/components/grades/GradeSheet";
+import GradeFormDialog from "@/components/grades/GradeFormDialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -156,36 +156,36 @@ export default function Grades() {
     return ranges;
   };
 
-//   const exportToCSV = () => {
-//     if (grades.length === 0) return;
+  //   const exportToCSV = () => {
+  //     if (grades.length === 0) return;
 
-//     const data = grades.map((grade) => {
-//       const enrollment = enrollments.find((e) => e.id === grade.enrollment_id);
-//       const student = students.find((s) => s.id === enrollment?.student_id);
+  //     const data = grades.map((grade) => {
+  //       const enrollment = enrollments.find((e) => e.id === grade.enrollment_id);
+  //       const student = students.find((s) => s.id === enrollment?.student_id);
 
-//       return {
-//         Étudiant: `${student?.first_name} ${student?.last_name}`,
-//         Évaluation: grade.evaluation_name,
-//         Note: `${grade.value}/${grade.max_value}`,
-//         Coefficient: grade.weight,
-//         Date: grade.date,
-//         Commentaire: grade.comments || "-",
-//       };
-//     });
+  //       return {
+  //         Étudiant: `${student?.first_name} ${student?.last_name}`,
+  //         Évaluation: grade.evaluation_name,
+  //         Note: `${grade.value}/${grade.max_value}`,
+  //         Coefficient: grade.weight,
+  //         Date: grade.date,
+  //         Commentaire: grade.comments || "-",
+  //       };
+  //     });
 
-//     const csv = [
-//       Object.keys(data[0]).join(","),
-//       ...data.map((row) => Object.values(row).join(",")),
-//     ].join("\n");
+  //     const csv = [
+  //       Object.keys(data[0]).join(","),
+  //       ...data.map((row) => Object.values(row).join(",")),
+  //     ].join("\n");
 
-//     const blob = new Blob([csv], { type: "text/csv" });
-//     const url = URL.createObjectURL(blob);
+  //     const blob = new Blob([csv], { type: "text/csv" });
+  //     const url = URL.createObjectURL(blob);
 
-//     const link = document.createElement("a");
-//     link.href = url;
-//     link.download = `notes_${new Date().toISOString().split("T")[0]}.csv`;
-//     link.click();
-//   };
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `notes_${new Date().toISOString().split("T")[0]}.csv`;
+  //     link.click();
+  //   };
 
   const filteredStudents = students.filter((s) =>
     `${s.first_name} ${s.last_name}`
@@ -415,15 +415,14 @@ export default function Grades() {
                         </div>
 
                         <div
-                          className={`text-3xl font-bold ${
-                            average >= 16
+                          className={`text-3xl font-bold ${average >= 16
                               ? "text-green-600"
                               : average >= 14
-                              ? "text-blue-600"
-                              : average >= 10
-                              ? "text-orange-600"
-                              : "text-red-600"
-                          }`}
+                                ? "text-blue-600"
+                                : average >= 10
+                                  ? "text-orange-600"
+                                  : "text-red-600"
+                            }`}
                         >
                           {average}/20
                         </div>

@@ -20,8 +20,8 @@ import { ClipboardCheck, Calendar, Users, TrendingUp, Download, Search, BarChart
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 import { fr } from "date-fns/locale";
-import AttendanceSheet from "../components/attendance/AttendanceSheet";
-import AttendanceStats from "../components/attendance/AttendanceStats";
+import AttendanceSheet from "@/components/attendance/AttendanceSheet";
+import AttendanceStats from "@/components/attendance/AttendanceStats";
 
 export default function Attendance() {
     const [selectedSession, setSelectedSession] = useState("");
@@ -275,8 +275,8 @@ export default function Attendance() {
                                                         {att.notes && <p className="text-xs text-slate-500 mt-1">{att.notes}</p>}
                                                     </div>
                                                     <div className={`px-3 py-1 rounded-full text-sm font-medium ${att.status === "présent" ? "bg-green-100 text-green-800" :
-                                                            att.status === "absent" ? "bg-red-100 text-red-800" :
-                                                                "bg-orange-100 text-orange-800"
+                                                        att.status === "absent" ? "bg-red-100 text-red-800" :
+                                                            "bg-orange-100 text-orange-800"
                                                         }`}>
                                                         {att.status}
                                                     </div>
@@ -334,9 +334,9 @@ export default function Attendance() {
                                                     </div>
                                                 </div>
                                                 <div className={`text-2xl font-bold ${rate >= 90 ? "text-green-600" :
-                                                        rate >= 75 ? "text-blue-600" :
-                                                            rate >= 60 ? "text-orange-600" :
-                                                                "text-red-600"
+                                                    rate >= 75 ? "text-blue-600" :
+                                                        rate >= 60 ? "text-orange-600" :
+                                                            "text-red-600"
                                                     }`}>
                                                     {rate}%
                                                 </div>
@@ -352,8 +352,8 @@ export default function Attendance() {
                                                                     {att.date && format(new Date(att.date), "d MMM yyyy", { locale: fr })}
                                                                 </span>
                                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${att.status === "présent" ? "bg-green-100 text-green-800" :
-                                                                        att.status === "absent" ? "bg-red-100 text-red-800" :
-                                                                            "bg-orange-100 text-orange-800"
+                                                                    att.status === "absent" ? "bg-red-100 text-red-800" :
+                                                                        "bg-orange-100 text-orange-800"
                                                                     }`}>
                                                                     {att.status}
                                                                 </span>

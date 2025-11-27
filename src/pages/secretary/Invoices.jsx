@@ -47,9 +47,9 @@ import {
 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import InvoiceFormDialog from "../components/invoices/InvoiceFormDialog";
-import PaymentDialog from "../components/invoices/PaymentDialog";
-import { generateReceiptPDF } from "../components/invoices/ReceiptGenerator";
+import InvoiceFormDialog from "@/components/invoices/InvoiceFormDialog";
+import PaymentDialog from "@/components/invoices/PaymentDialog";
+import { generateReceiptPDF } from "@/components/invoices/ReceiptGenerator";
 import { toast } from "sonner";
 
 export default function Invoices() {

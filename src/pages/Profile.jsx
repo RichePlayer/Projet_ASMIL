@@ -6,8 +6,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Lock, Bell, Shield, Mail, Phone, MapPin, Building } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Profile() {
+    const { user } = useAuth();
+
+    if (!user) return null;
+
+    const [firstName, lastName] = user.full_name.split(" ");
+
     return (
         <div className="space-y-8">
             {/* Header Profile */}
@@ -15,12 +22,12 @@ export default function Profile() {
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop')] opacity-20 bg-cover bg-center"></div>
                 <div className="absolute bottom-0 left-0 p-8 flex items-end gap-6">
                     <Avatar className="h-24 w-24 border-4 border-white shadow-xl">
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-red-600 text-white text-3xl font-bold">S</AvatarFallback>
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback className="bg-red-600 text-white text-3xl font-bold">{user.full_name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="mb-2 text-white">
-                        <h1 className="text-3xl font-bold">Secrétaire Principale</h1>
-                        <p className="text-slate-300 font-medium">Gestionnaire Administratif • Institut ASMiL</p>
+                        <h1 className="text-3xl font-bold">{user.full_name}</h1>
+                        <p className="text-slate-300 font-medium">{user.role} • Institut ASMiL</p>
                     </div>
                 </div>
             </div>
@@ -42,19 +49,19 @@ export default function Profile() {
                             <CardContent className="space-y-4">
                                 <div className="flex items-center gap-3 text-sm">
                                     <Mail className="h-4 w-4 text-slate-400" />
-                                    <span className="text-slate-700">secretaire@asmil.mg</span>
+                                    <span className="text-slate-700">{user.email}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm">
                                     <Phone className="h-4 w-4 text-slate-400" />
-                                    <span className="text-slate-700">+261 34 00 000 00</span>
+                                    <span className="text-slate-700">{user.phone || "Non renseigné"}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm">
                                     <MapPin className="h-4 w-4 text-slate-400" />
-                                    <span className="text-slate-700">Antananarivo, Madagascar</span>
+                                    <span className="text-slate-700">{user.address || "Non renseigné"}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm">
                                     <Building className="h-4 w-4 text-slate-400" />
-                                    <span className="text-slate-700">Bureau A-102</span>
+                                    <span className="text-slate-700">{user.office || "Bureau"}</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -74,16 +81,16 @@ export default function Profile() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="firstname">Prénom</Label>
-                                            <Input id="firstname" defaultValue="Secrétaire" />
+                                            <Input id="firstname" defaultValue={firstName} />
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="lastname">Nom</Label>
-                                            <Input id="lastname" defaultValue="Principale" />
+                                            <Input id="lastname" defaultValue={lastName || ""} />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="bio">Bio</Label>
-                                        <Input id="bio" defaultValue="Responsable de la gestion administrative et des inscriptions." />
+                                        <Input id="bio" defaultValue={user.bio || ""} />
                                     </div>
                                 </CardContent>
                                 <CardFooter>

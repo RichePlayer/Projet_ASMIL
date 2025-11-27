@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin, Users, BookOpen, FileText } from "lucide-react";
 import { format, startOfWeek } from "date-fns";
 import { fr } from "date-fns/locale";
-import { generateTimetableDoc } from "../components/timetable/TimetableDocGenerator";
+import { generateTimetableDoc } from "@/components/timetable/TimetableDocGenerator";
 
 export default function Timetable() {
   const [selectedSession, setSelectedSession] = useState("all");

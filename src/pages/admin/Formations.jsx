@@ -26,8 +26,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import FormationFormDialog from "../components/formations/FormationFormDialog";
-import FormationDetailDialog from "../components/formations/FormationDetailDialog";
+import FormationFormDialog from "@/components/formations/FormationFormDialog";
+import FormationDetailDialog from "@/components/formations/FormationDetailDialog";
 
 import { toast } from "sonner";
 

@@ -18,8 +18,8 @@ import {
   FileText,
 } from "lucide-react";
 
-import AnnouncementFormDialog from "../components/announcements/AnnouncementFormDialog";
-import { generateAnnouncementPDF } from "../components/announcements/AnnouncementPDFGenerator";
+import AnnouncementFormDialog from "@/components/announcements/AnnouncementFormDialog";
+import { generateAnnouncementPDF } from "@/components/announcements/AnnouncementPDFGenerator";
 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

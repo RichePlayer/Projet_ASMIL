@@ -23,8 +23,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import TeacherFormDialog from "../components/teachers/TeacherFormDialog";
-import TeacherDetailDialog from "../components/teachers/TeacherDetailDialog";
+import TeacherFormDialog from "@/components/teachers/TeacherFormDialog";
+import TeacherDetailDialog from "@/components/teachers/TeacherDetailDialog";
 import { toast } from "sonner";
 
 export default function Teachers() {

@@ -24,8 +24,8 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
-import CertificateGenerator from "../components/certificates/CertificateGenerator";
-import CertificatePreview from "../components/certificates/CertificatePreview";
+import CertificateGenerator from "@/components/certificates/CertificateGenerator";
+import CertificatePreview from "@/components/certificates/CertificatePreview";
 
 export default function Certificates() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -161,15 +161,7 @@ export default function Certificates() {
             className="border-red-600 text-red-600 hover:bg-red-50"
           >
             <FileText className="h-4 w-4 mr-2" />
-            Créer Manuellement
-          </Button>
-          <Button
-            onClick={() => generateCertificatesMutation.mutate()}
-            disabled={generateCertificatesMutation.isPending || eligibleCount === 0}
-            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Générer Auto ({eligibleCount})
+            Nouvelle Certification
           </Button>
         </div>
       </div>
