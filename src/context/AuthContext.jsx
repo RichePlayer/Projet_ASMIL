@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { logAction, LOG_ACTIONS } from "@/utils/auditLog";
+import api from "@/services/api";
 
 const AuthContext = createContext(null);
 
@@ -17,54 +18,25 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        // Mock authentication logic
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (email === "admin@asmil.mg" && password === "admin123") {
-                    const adminUser = {
-                        id: 1,
-                        full_name: "Administrateur",
-                        email: "admin@asmil.mg",
-                        role: "Admin",
-                        avatar: "",
-                        phone: "+261 34 00 000 00",
-                        address: "Antananarivo, Madagascar",
-                        office: "Bureau Direction",
-                        bio: "Administrateur système responsable de la maintenance et de la sécurité de la plateforme ASMiL."
-                    };
-                    setUser(adminUser);
-                    localStorage.setItem("asmil_user", JSON.stringify(adminUser));
+        try {
+            const response = await api.post('/auth/login', { email, password });
+            const { user, token } = response.data;
 
-                    // Log successful login
-                    logAction(LOG_ACTIONS.LOGIN, { email }, adminUser);
+            // Ajouter le token à l'objet utilisateur pour le stockage local
+            const userWithToken = { ...user, token };
 
-                    resolve(adminUser);
-                } else if (email === "secretaire@asmil.mg" && password === "password") {
-                    const normalUser = {
-                        id: 2,
-                        full_name: "Secrétaire Principale",
-                        email: "secretaire@asmil.mg",
-                        role: "Gestionnaire",
-                        avatar: "",
-                        phone: "+261 33 11 222 33",
-                        address: "Antananarivo, Madagascar",
-                        office: "Bureau A-102",
-                        bio: "Responsable de la gestion administrative et des inscriptions."
-                    };
-                    setUser(normalUser);
-                    localStorage.setItem("asmil_user", JSON.stringify(normalUser));
+            setUser(userWithToken);
+            localStorage.setItem("asmil_user", JSON.stringify(userWithToken));
 
-                    // Log successful login
-                    logAction(LOG_ACTIONS.LOGIN, { email }, normalUser);
+            // Log successful login
+            logAction(LOG_ACTIONS.LOGIN, { email }, userWithToken);
 
-                    resolve(normalUser);
-                } else {
-                    // Log failed login attempt
-                    logAction(LOG_ACTIONS.LOGIN_FAILED, { email });
-                    reject(new Error("Identifiants incorrects"));
-                }
-            }, 1000);
-        });
+            return userWithToken;
+        } catch (error) {
+            // Log failed login attempt
+            logAction(LOG_ACTIONS.LOGIN_FAILED, { email });
+            throw new Error(error.response?.data?.message || "Identifiants incorrects");
+        }
     };
 
     const logout = () => {

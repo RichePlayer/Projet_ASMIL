@@ -1,7 +1,6 @@
-// src/pages/admin/AdminDashboard.jsx
 import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { invoiceAPI, enrollmentAPI, studentAPI, paymentAPI, teacherAPI } from "@/api/localDB";
+import api from "@/services/api";
 import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { fr } from "date-fns/locale";
 import StatCard from "@/components/shared/StatCard";
@@ -35,11 +34,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: () => invoiceAPI.list("-created_date", 1000) });
-    const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: () => paymentAPI.list("-created_date", 1000) });
-    const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: () => enrollmentAPI.list() });
-    const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => studentAPI.list() });
-    const { data: teachers = [] } = useQuery({ queryKey: ["teachers"], queryFn: () => teacherAPI.list() });
+    const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: async () => (await api.get('/invoices')).data });
+    const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: async () => (await api.get('/payments')).data });
+    const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: async () => (await api.get('/enrollments')).data });
+    const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: async () => (await api.get('/students')).data });
+    const { data: teachers = [] } = useQuery({ queryKey: ["teachers"], queryFn: async () => (await api.get('/teachers')).data });
 
     // ========== ADVANCED KPIs ==========
 

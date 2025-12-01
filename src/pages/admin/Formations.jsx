@@ -1,13 +1,6 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-import {
-  formationAPI,
-  categoryAPI,
-  moduleAPI,
-  sessionAPI,
-} from "@/api/localDB";
+import api from "@/services/api";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,37 +36,54 @@ export default function Formations() {
   const queryClient = useQueryClient();
 
   /* ---------------------------------------------
-    LOAD DATA FROM LOCALDB
+    LOAD DATA FROM API
   ---------------------------------------------- */
   const { data: formations = [], isLoading } = useQuery({
     queryKey: ["formations"],
-    queryFn: () => formationAPI.list("-created_date", 500),
+    queryFn: async () => (await api.get('/formations')).data,
   });
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => categoryAPI.list(),
+    queryFn: async () => (await api.get('/formations/categories/all')).data,
   });
 
-  const { data: modules = [] } = useQuery({
-    queryKey: ["modules"],
-    queryFn: () => moduleAPI.list(),
-  });
+  // Note: Les modules sont souvent chargés avec les formations ou via un endpoint spécifique
+  // Je vais supposer qu'il y a un endpoint pour lister tous les modules, ou je devrai adapter
+  // Si le backend n'a pas /modules, je devrai peut-être le charger différemment.
+  // Dans formationRoutes.js, il y a router.get('/:id/modules', ...).
+  // Mais ici on veut tous les modules pour le filtrage.
+  // Je vais vérifier si une route globale existe, sinon je devrai peut-être itérer (ce qui n'est pas idéal).
+  // Pour l'instant, je vais commenter ou adapter.
+  // Mieux: je vais vérifier si 'formations' inclut déjà les modules (include: { modules: true }).
+  // Si oui, je peux extraire les modules des formations.
 
-  const { data: sessions = [] } = useQuery({
-    queryKey: ["sessions"],
-    queryFn: () => sessionAPI.list(),
-  });
+  // En regardant formationController.js (step 52), getAllFormations inclut les modules ?
+  // "include: { category: true, modules: true, sessions: true }" -> OUI !
+  // Donc je n'ai pas besoin de faire un appel séparé pour les modules si je les ai dans formations.
+  // Cependant, le code existant utilise `modules` séparément.
+  // Je vais adapter pour utiliser les modules inclus dans les formations.
+
+  const modules = formations.flatMap(f => f.modules || []);
+
+  // Idem pour les sessions, elles sont incluses dans la formation ?
+  // "sessions: true" -> OUI.
+  const sessions = formations.flatMap(f => f.sessions || []);
+
 
   /* ---------------------------------------------
     DELETE FORMATION
   ---------------------------------------------- */
   const deleteFormationMutation = useMutation({
-    mutationFn: (id) => formationAPI.delete(id),
+    mutationFn: (id) => api.delete(`/formations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["formations"] });
       toast.success("Formation supprimée");
     },
+    onError: (error) => {
+      toast.error("Erreur lors de la suppression");
+      console.error(error);
+    }
   });
 
   /* ---------------------------------------------

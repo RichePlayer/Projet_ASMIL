@@ -2,7 +2,7 @@
 // src/components/teachers/TeacherFormDialog.jsx
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { teacherAPI, uploadAPI } from "@/api/localDB";
+import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2, Upload } from "lucide-react";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function TeacherFormDialog({ teacher, open, onClose }) {
   const [formData, setFormData] = useState({
@@ -46,7 +46,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
         bio: teacher.bio || "",
         photo_url: teacher.photo_url || "",
         status: teacher.status || "actif",
-        hire_date: teacher.hire_date || "",
+        hire_date: teacher.hire_date ? new Date(teacher.hire_date).toISOString().split("T")[0] : "",
         hourly_rate: teacher.hourly_rate || 0,
         availability: teacher.availability || [],
       });
@@ -54,28 +54,68 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
   }, [teacher]);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       if (teacher) {
-        return teacherAPI.update(teacher.id, data);
+        return (await api.put(`/teachers/${teacher.id}`, data)).data;
       }
-      return teacherAPI.create(data);
+      return (await api.post('/teachers', data)).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
-      toast.success(teacher ? "Enseignant modifié" : "Enseignant créé");
       onClose();
+      Swal.fire({
+        icon: 'success',
+        title: teacher ? "Modifié !" : "Créé !",
+        text: teacher ? "L'enseignant a été modifié avec succès." : "Le nouvel enseignant a été ajouté.",
+        timer: 1500,
+        showConfirmButton: false
+      });
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Une erreur est survenue lors de l'enregistrement.",
+      });
+    }
   });
 
   const handlePhotoUpload = async (file) => {
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await uploadAPI.UploadFile({ file });
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const { file_url } = response.data;
       setFormData({ ...formData, photo_url: file_url });
-      toast.success("Photo téléchargée");
+      Swal.fire({
+        icon: 'success',
+        title: 'Photo téléchargée',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
     } catch (error) {
-      toast.error("Erreur lors du téléchargement");
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Erreur lors du téléchargement de la photo",
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
     } finally {
       setUploading(false);
     }
@@ -257,7 +297,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {formData.specialties.map((spec, index) => (
+              {(formData.specialties || []).map((spec, index) => (
                 <div key={index} className="bg-red-100 text-red-800 px-3 py-1 rounded-full flex items-center gap-2">
                   <span className="text-sm">{spec}</span>
                   <button type="button" onClick={() => removeSpecialty(index)} className="hover:text-red-900">
@@ -278,7 +318,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
               </Button>
             </div>
             <div className="space-y-3">
-              {formData.availability.map((slot, index) => (
+              {(formData.availability || []).map((slot, index) => (
                 <Card key={index} className="p-4">
                   <div className="grid grid-cols-4 gap-3 items-end">
                     <div>

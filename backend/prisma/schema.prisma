@@ -1,0 +1,226 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  full_name    String    @db.VarChar(100)
+  email        String    @unique @db.VarChar(150)
+  password_hash String   @db.VarChar(255)
+  role         String    @db.VarChar(50) // 'Admin', 'Gestionnaire'
+  status       String?   @default("active") @db.VarChar(20) // 'active', 'inactive'
+  last_login   DateTime?
+  created_at   DateTime  @default(now())
+
+  @@map("users")
+}
+
+model Category {
+  id         Int         @id @default(autoincrement())
+  name       String      @db.VarChar(100)
+  created_at DateTime    @default(now())
+  formations Formation[]
+
+  @@map("categories")
+}
+
+model Formation {
+  id            Int           @id @default(autoincrement())
+  category_id   Int?
+  category      Category?     @relation(fields: [category_id], references: [id])
+  title         String        @db.VarChar(200)
+  description   String?       @db.Text
+  duration_months Int?
+  price         Decimal       @default(0) @db.Decimal(10, 2)
+  type          String?       @db.VarChar(50)
+  image_url     String?       @db.VarChar(255)
+  prerequisites String?       @db.Text
+  created_at    DateTime      @default(now())
+  modules       Module[]
+  sessions      Session[]
+  certificates  Certificate[]
+
+  @@map("formations")
+}
+
+model Module {
+  id           Int       @id @default(autoincrement())
+  formation_id Int?
+  formation    Formation? @relation(fields: [formation_id], references: [id], onDelete: Cascade)
+  title        String    @db.VarChar(200)
+  description  String?   @db.Text
+  hours        Int?
+  order_index  Int?
+  created_at   DateTime  @default(now())
+
+  @@map("modules")
+}
+
+model Teacher {
+  id                  Int       @id @default(autoincrement())
+  registration_number String    @unique @db.VarChar(50)
+  first_name          String    @db.VarChar(100)
+  last_name           String    @db.VarChar(100)
+  email               String?   @unique @db.VarChar(150)
+  phone               String?   @db.VarChar(50)
+  photo_url           String?   @db.VarChar(255)
+  availability        Json?
+  specialties         String[]
+  bio                 String?   @db.Text
+  status              String?   @default("actif") @db.VarChar(20)
+  hire_date           DateTime? @db.Date
+  hourly_rate         Decimal?  @db.Decimal(10, 2)
+  created_at          DateTime  @default(now())
+  sessions            Session[]
+
+  @@map("teachers")
+}
+
+model Session {
+  id           Int          @id @default(autoincrement())
+  formation_id Int?
+  formation    Formation?   @relation(fields: [formation_id], references: [id], onDelete: Cascade)
+  teacher_id   Int?
+  teacher      Teacher?     @relation(fields: [teacher_id], references: [id])
+  start_date   DateTime     @db.Date
+  end_date     DateTime     @db.Date
+  room         String?      @db.VarChar(50)
+  capacity     Int?
+  status       String?      @default("planifiée") @db.VarChar(20)
+  schedule     Json?
+  created_at   DateTime     @default(now())
+  enrollments  Enrollment[]
+
+  @@map("sessions")
+}
+
+model Student {
+  id                  Int           @id @default(autoincrement())
+  registration_number String        @unique @db.VarChar(50)
+  first_name          String        @db.VarChar(100)
+  last_name           String        @db.VarChar(100)
+  date_of_birth       DateTime?     @db.Date
+  gender              String?       @db.VarChar(20)
+  email               String?       @db.VarChar(150)
+  phone_parent        String?       @db.VarChar(50)
+  address             String?       @db.Text
+  status              String?       @default("actif") @db.VarChar(20)
+  enrollment_date     DateTime?     @default(now()) @db.Date
+  photo_url           String?       @db.VarChar(255)
+  created_at          DateTime      @default(now())
+  enrollments         Enrollment[]
+  certificates        Certificate[]
+
+  @@map("students")
+}
+
+model Enrollment {
+  id          Int          @id @default(autoincrement())
+  student_id  Int?
+  student     Student?     @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  session_id  Int?
+  session     Session?     @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  status      String?      @default("actif") @db.VarChar(20)
+  total_amount Decimal     @default(0) @db.Decimal(10, 2)
+  paid_amount  Decimal?    @default(0) @db.Decimal(10, 2)
+  notes       String?      @db.Text
+  created_at  DateTime     @default(now())
+  attendances Attendance[]
+  grades      Grade[]
+  invoices    Invoice[]
+
+  @@map("enrollments")
+}
+
+model Attendance {
+  id            Int         @id @default(autoincrement())
+  enrollment_id Int?
+  enrollment    Enrollment? @relation(fields: [enrollment_id], references: [id], onDelete: Cascade)
+  date          DateTime    @db.Date
+  status        String      @db.VarChar(20) // 'présent', 'absent', 'retard', 'excusé'
+  notes         String?     @db.Text
+  created_at    DateTime    @default(now())
+
+  @@map("attendances")
+}
+
+model Grade {
+  id              Int         @id @default(autoincrement())
+  enrollment_id   Int?
+  enrollment      Enrollment? @relation(fields: [enrollment_id], references: [id], onDelete: Cascade)
+  evaluation_name String      @db.VarChar(100)
+  value           Decimal     @db.Decimal(5, 2)
+  max_value       Decimal     @default(20) @db.Decimal(5, 2)
+  weight          Decimal?    @default(1) @db.Decimal(5, 2)
+  date            DateTime?   @db.Date
+  comments        String?     @db.Text
+  created_at      DateTime    @default(now())
+
+  @@map("grades")
+}
+
+model Certificate {
+  id                 Int        @id @default(autoincrement())
+  certificate_number String     @unique @db.VarChar(100)
+  student_id         Int?
+  student            Student?   @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  formation_id       Int?
+  formation          Formation? @relation(fields: [formation_id], references: [id])
+  date_obtention     DateTime?  @default(now()) @db.Date
+  status             String?    @default("valide") @db.VarChar(20)
+  created_at         DateTime   @default(now())
+
+  @@map("certificates")
+}
+
+model Invoice {
+  id             Int         @id @default(autoincrement())
+  invoice_number String      @unique @db.VarChar(50)
+  enrollment_id  Int?
+  enrollment     Enrollment? @relation(fields: [enrollment_id], references: [id])
+  amount         Decimal     @db.Decimal(10, 2)
+  due_date       DateTime?   @db.Date
+  status         String?     @default("impayée") @db.VarChar(20)
+  notes          String?     @db.Text
+  created_at     DateTime    @default(now())
+  payments       Payment[]
+
+  @@map("invoices")
+}
+
+model Payment {
+  id                    Int      @id @default(autoincrement())
+  invoice_id            Int?
+  invoice               Invoice? @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  amount                Decimal  @db.Decimal(10, 2)
+  method                String?  @db.VarChar(50)
+  transaction_reference String?  @db.VarChar(100)
+  payment_date          DateTime? @default(now())
+  notes                 String?  @db.Text
+  created_at            DateTime @default(now())
+
+  @@map("payments")
+}
+
+model Announcement {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(200)
+  content         String   @db.Text
+  type            String?  @default("information") @db.VarChar(50)
+  target_audience String?  @default("tous") @db.VarChar(50)
+  published       Boolean? @default(true)
+  publish_date    DateTime? @default(now()) @db.Date
+  expiry_date     DateTime? @db.Date
+  created_at      DateTime @default(now())
+
+  @@map("announcements")
+}

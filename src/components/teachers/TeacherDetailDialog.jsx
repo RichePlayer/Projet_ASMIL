@@ -2,7 +2,7 @@
 // src/components/teachers/TeacherDetailDialog.jsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { sessionAPI } from "@/api/localDB";
+import api from "@/services/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,12 +12,18 @@ import { User, Mail, Phone, Calendar, DollarSign, Clock, Edit } from "lucide-rea
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export default function TeacherDetailDialog({ teacher, open, onClose, onEdit }) {
-  const { data: sessions = [] } = useQuery({
-    queryKey: ["teacher-sessions", teacher?.id],
-    queryFn: () => sessionAPI.filter({ teacher_id: teacher.id }),
-    enabled: !!teacher?.id,
+export default function TeacherDetailDialog({ teacher: initialTeacher, open, onClose, onEdit }) {
+  const { data: teacherData } = useQuery({
+    queryKey: ["teacher", initialTeacher?.id],
+    queryFn: async () => {
+      const response = await api.get(`/teachers/${initialTeacher.id}`);
+      return response.data.teacher;
+    },
+    enabled: !!initialTeacher?.id,
   });
+
+  const teacher = teacherData || initialTeacher;
+  const sessions = teacher?.sessions || [];
 
   if (!teacher) return null;
 

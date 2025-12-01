@@ -84,27 +84,7 @@ export default function Login() {
                         <p className="text-slate-500 mt-2 text-sm">Accédez à votre espace de gestion</p>
                     </div>
 
-                    {/* Demo Credentials Buttons */}
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                        <Button
-                            variant="outline"
-                            className="flex flex-col h-auto py-3 border-slate-200 hover:border-red-200 hover:bg-red-50/50"
-                            onClick={() => fillCredentials("user")}
-                        >
-                            <User className="h-5 w-5 text-slate-600 mb-1" />
-                            <span className="text-xs font-bold text-slate-700">Secrétaire</span>
-                            <span className="text-[10px] text-slate-400">Utilisateur</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="flex flex-col h-auto py-3 border-slate-200 hover:border-red-200 hover:bg-red-50/50"
-                            onClick={() => fillCredentials("admin")}
-                        >
-                            <ShieldCheck className="h-5 w-5 text-red-600 mb-1" />
-                            <span className="text-xs font-bold text-slate-700">Admin</span>
-                            <span className="text-[10px] text-slate-400">Administrateur</span>
-                        </Button>
-                    </div>
+
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-5">

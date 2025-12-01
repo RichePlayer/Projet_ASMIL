@@ -2,7 +2,7 @@
 // src/pages/Teachers.jsx
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { teacherAPI } from "@/api/localDB";
+import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Users, Edit, Trash2, Eye, MoreVertical } from "lucide-react";
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import TeacherFormDialog from "@/components/teachers/TeacherFormDialog";
 import TeacherDetailDialog from "@/components/teachers/TeacherDetailDialog";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function Teachers() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -38,15 +38,30 @@ export default function Teachers() {
 
     const { data: teachers = [], isLoading } = useQuery({
         queryKey: ["teachers"],
-        queryFn: () => teacherAPI.list("-created_date", 200),
+        queryFn: async () => {
+            const response = await api.get('/teachers');
+            return response.data.teachers || [];
+        },
     });
 
     const deleteTeacherMutation = useMutation({
-        mutationFn: (id) => teacherAPI.delete(id),
+        mutationFn: (id) => api.delete(`/teachers/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["teachers"] });
-            toast.success("Enseignant supprimé");
+            Swal.fire(
+                'Supprimé !',
+                'L\'enseignant a été supprimé.',
+                'success'
+            );
         },
+        onError: (error) => {
+            console.error(error);
+            Swal.fire(
+                'Erreur',
+                'Une erreur est survenue lors de la suppression.',
+                'error'
+            );
+        }
     });
 
     const filteredTeachers = teachers.filter((teacher) => {
@@ -257,9 +272,20 @@ export default function Teachers() {
                                                 <DropdownMenuItem
                                                     className="text-red-600 focus:text-red-700"
                                                     onClick={() => {
-                                                        if (confirm("Supprimer cet enseignant ?")) {
-                                                            deleteTeacherMutation.mutate(teacher.id);
-                                                        }
+                                                        Swal.fire({
+                                                            title: 'Êtes-vous sûr ?',
+                                                            text: "Voulez-vous vraiment supprimer cet enseignant ?",
+                                                            icon: 'warning',
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: '#d33',
+                                                            cancelButtonColor: '#3085d6',
+                                                            confirmButtonText: 'Oui, supprimer',
+                                                            cancelButtonText: 'Annuler'
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                deleteTeacherMutation.mutate(teacher.id);
+                                                            }
+                                                        });
                                                     }}
                                                 >
                                                     <Trash2 className="h-4 w-4 mr-2" />
