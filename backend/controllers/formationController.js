@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 const createFormation = async (req, res) => {
     try {
         const {
-            category_id,
+            category,
             title,
             description,
             duration_months,
@@ -19,7 +19,7 @@ const createFormation = async (req, res) => {
 
         const formation = await prisma.formation.create({
             data: {
-                category_id: category_id ? parseInt(category_id) : null,
+                category,
                 title,
                 description,
                 duration_months: duration_months ? parseInt(duration_months) : null,
@@ -27,9 +27,6 @@ const createFormation = async (req, res) => {
                 type,
                 image_url,
                 prerequisites
-            },
-            include: {
-                category: true
             }
         });
 
@@ -48,12 +45,12 @@ const createFormation = async (req, res) => {
  */
 const getAllFormations = async (req, res) => {
     try {
-        const { page = 1, limit = 10, category_id, type, search } = req.query;
+        const { page = 1, limit = 10, category, type, search } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const where = {};
-        if (category_id) where.category_id = parseInt(category_id);
-        if (type) where.type = type;
+        if (category && category !== 'all') where.category = category;
+        if (type && type !== 'all') where.type = type;
         if (search) {
             where.OR = [
                 { title: { contains: search, mode: 'insensitive' } },
@@ -68,7 +65,6 @@ const getAllFormations = async (req, res) => {
                 take: parseInt(limit),
                 orderBy: { created_at: 'desc' },
                 include: {
-                    category: true,
                     modules: {
                         orderBy: { order_index: 'asc' }
                     },
@@ -108,7 +104,6 @@ const getFormationById = async (req, res) => {
         const formation = await prisma.formation.findUnique({
             where: { id: parseInt(id) },
             include: {
-                category: true,
                 modules: {
                     orderBy: { order_index: 'asc' }
                 },
@@ -147,7 +142,7 @@ const updateFormation = async (req, res) => {
     try {
         const { id } = req.params;
         const {
-            category_id,
+            category,
             title,
             description,
             duration_months,
@@ -168,7 +163,7 @@ const updateFormation = async (req, res) => {
         const formation = await prisma.formation.update({
             where: { id: parseInt(id) },
             data: {
-                category_id: category_id !== undefined ? (category_id ? parseInt(category_id) : null) : undefined,
+                category,
                 title,
                 description,
                 duration_months: duration_months !== undefined ? parseInt(duration_months) : undefined,
@@ -178,7 +173,6 @@ const updateFormation = async (req, res) => {
                 prerequisites
             },
             include: {
-                category: true,
                 modules: true
             }
         });
@@ -317,48 +311,6 @@ const deleteModule = async (req, res) => {
     }
 };
 
-/**
- * Obtenir toutes les catégories
- */
-const getAllCategories = async (req, res) => {
-    try {
-        const categories = await prisma.category.findMany({
-            include: {
-                _count: {
-                    select: { formations: true }
-                }
-            },
-            orderBy: { name: 'asc' }
-        });
-
-        res.json({ categories });
-    } catch (error) {
-        console.error('Erreur récupération catégories:', error);
-        res.status(500).json({ message: 'Échec de la récupération des catégories', error: error.message });
-    }
-};
-
-/**
- * Créer une catégorie
- */
-const createCategory = async (req, res) => {
-    try {
-        const { name } = req.body;
-
-        const category = await prisma.category.create({
-            data: { name }
-        });
-
-        res.status(201).json({
-            message: 'Catégorie créée avec succès',
-            category
-        });
-    } catch (error) {
-        console.error('Erreur création catégorie:', error);
-        res.status(500).json({ message: 'Échec de la création de la catégorie', error: error.message });
-    }
-};
-
 module.exports = {
     createFormation,
     getAllFormations,
@@ -367,7 +319,5 @@ module.exports = {
     deleteFormation,
     addModule,
     updateModule,
-    deleteModule,
-    getAllCategories,
-    createCategory
+    deleteModule
 };

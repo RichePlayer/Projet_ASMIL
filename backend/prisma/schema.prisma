@@ -24,19 +24,9 @@ model User {
   @@map("users")
 }
 
-model Category {
-  id         Int         @id @default(autoincrement())
-  name       String      @db.VarChar(100)
-  created_at DateTime    @default(now())
-  formations Formation[]
-
-  @@map("categories")
-}
-
 model Formation {
   id            Int           @id @default(autoincrement())
-  category_id   Int?
-  category      Category?     @relation(fields: [category_id], references: [id])
+  category      String?       @db.VarChar(100)
   title         String        @db.VarChar(200)
   description   String?       @db.Text
   duration_months Int?

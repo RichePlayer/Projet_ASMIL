@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import FormationFormDialog from "@/components/formations/FormationFormDialog";
 import FormationDetailDialog from "@/components/formations/FormationDetailDialog";
 
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function Formations() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,13 +40,22 @@ export default function Formations() {
   ---------------------------------------------- */
   const { data: formations = [], isLoading } = useQuery({
     queryKey: ["formations"],
-    queryFn: async () => (await api.get('/formations')).data,
+    queryFn: async () => {
+      const response = await api.get('/formations');
+      return response.data.formations || [];
+    },
   });
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => (await api.get('/formations/categories/all')).data,
-  });
+  const categories = [
+    "Informatique",
+    "Langues",
+    "Communication",
+    "Développement Marketing",
+    "Entrepreneuriat",
+    "Leadership",
+    "Management d'entreprise",
+    "Management des projets"
+  ];
 
   // Note: Les modules sont souvent chargés avec les formations ou via un endpoint spécifique
   // Je vais supposer qu'il y a un endpoint pour lister tous les modules, ou je devrai adapter
@@ -78,11 +87,19 @@ export default function Formations() {
     mutationFn: (id) => api.delete(`/formations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["formations"] });
-      toast.success("Formation supprimée");
+      Swal.fire(
+        'Supprimée !',
+        'La formation a été supprimée.',
+        'success'
+      );
     },
     onError: (error) => {
-      toast.error("Erreur lors de la suppression");
       console.error(error);
+      Swal.fire(
+        'Erreur',
+        'Une erreur est survenue lors de la suppression.',
+        'error'
+      );
     }
   });
 
@@ -94,7 +111,7 @@ export default function Formations() {
     const matchesSearch = f.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedType === "all" || selectedType === f.type;
     const matchesCategory =
-      selectedCategory === "all" || selectedCategory === f.category_id;
+      selectedCategory === "all" || selectedCategory === f.category;
 
     return matchesSearch && matchesType && matchesCategory;
   });
@@ -110,8 +127,7 @@ export default function Formations() {
     return sessions.filter((s) => moduleIds.includes(s.module_id));
   };
 
-  const getCategoryName = (categoryId) =>
-    categories.find((c) => c.id === categoryId)?.name || "Sans catégorie";
+  // const getCategoryName = (categoryId) => ... // Plus besoin
 
   const getTypeColor = (type) => {
     const colors = {
@@ -229,8 +245,8 @@ export default function Formations() {
         >
           <option value="all">Toutes catégories</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+            <option key={c} value={c}>
+              {c}
             </option>
           ))}
         </select>
@@ -295,10 +311,21 @@ export default function Formations() {
                         variant="ghost"
                         className="text-red-600"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm("Supprimer cette formation ?")) {
-                            deleteFormationMutation.mutate(formation.id);
-                          }
+                          if (e) e.stopPropagation();
+                          Swal.fire({
+                            title: 'Êtes-vous sûr ?',
+                            text: "Voulez-vous vraiment supprimer cette formation ?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Oui, supprimer',
+                            cancelButtonText: 'Annuler'
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              deleteFormationMutation.mutate(formation.id);
+                            }
+                          });
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -310,7 +337,7 @@ export default function Formations() {
                     {formation.title}
                   </CardTitle>
                   <p className="text-sm text-slate-500">
-                    {getCategoryName(formation.category_id)}
+                    {formation.category || "Sans catégorie"}
                   </p>
                 </CardHeader>
 

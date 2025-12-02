@@ -8,9 +8,7 @@ const {
     deleteFormation,
     addModule,
     updateModule,
-    deleteModule,
-    getAllCategories,
-    createCategory
+    deleteModule
 } = require('../controllers/formationController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
@@ -25,13 +23,6 @@ const { authenticateToken, authorizeRole } = require('../middleware/authMiddlewa
  * @query   page, limit, category_id, type, search
  */
 router.get('/', getAllFormations);
-
-/**
- * @route   GET /api/formations/categories/all
- * @desc    Obtenir toutes les catégories
- * @access  Public
- */
-router.get('/categories/all', getAllCategories);
 
 /**
  * @route   GET /api/formations/:id
@@ -86,12 +77,5 @@ router.put('/modules/:moduleId', authorizeRole(['Admin']), updateModule);
  * @access  Admin
  */
 router.delete('/modules/:moduleId', authorizeRole(['Admin']), deleteModule);
-
-/**
- * @route   POST /api/formations/categories
- * @desc    Créer une catégorie
- * @access  Admin
- */
-router.post('/categories', authorizeRole(['Admin']), createCategory);
 
 module.exports = router;

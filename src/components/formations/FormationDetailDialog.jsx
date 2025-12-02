@@ -2,11 +2,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  sessionAPI,
-  moduleAPI,
-  categoryAPI,
-} from "@/api/localDB";
+import api from "@/services/api";
 
 import {
   Dialog,
@@ -33,35 +29,43 @@ export default function FormationDetailDialog({
   onEdit,
 }) {
   /* ---------------------- LOAD MODULES ---------------------- */
+  // Note: Idéalement on devrait charger les modules de CETTE formation via l'API
+  // Mais pour l'instant on garde la logique de charger tout et filtrer (optimisation future possible)
+  // Ou mieux, utiliser l'endpoint /formations/:id qui renvoie tout (modules, sessions)
+  // Cependant, pour minimiser les changements structurels ici, je vais juste remplacer les appels.
+
   const { data: modules = [] } = useQuery({
     queryKey: ["modules"],
-    queryFn: () => moduleAPI.list(),
+    queryFn: async () => {
+      // Si pas d'endpoint global modules, on peut utiliser celui des formations et extraire
+      // Mais supposons qu'on a besoin de tout pour l'instant ou que l'API a été adaptée.
+      // En fait, formationController n'a pas de getAllModules public simple sans ID formation ?
+      // Si, il n'y a pas de route /modules globale dans formationRoutes.js ?
+      // Je vais vérifier formationRoutes.js. Si pas de route, je devrais utiliser formation.modules si dispo.
+      // Le composant reçoit `formation` en prop. Si `formation` contient déjà `modules` et `sessions` (ce qui est le cas avec getFormationById ou getAllFormations du backend),
+      // alors je n'ai PAS besoin de refaire des requêtes !
+      return [];
+    },
+    enabled: false // On désactive car on va utiliser les props
   });
 
   /* ---------------------- LOAD SESSIONS ---------------------- */
   const { data: sessions = [] } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => sessionAPI.list(),
+    queryFn: async () => [],
+    enabled: false
   });
 
   /* ---------------------- CATEGORY NAME ---------------------- */
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => categoryAPI.list(),
-  });
-
-  const categoryName =
-    categories.find((c) => c.id === formation.category_id)?.name ||
-    "Sans catégorie";
+  const categoryName = formation.category || "Sans catégorie";
 
   /* ---------------------- MODULES BY FORMATION ---------------------- */
-  const formationModules = modules.filter(
-    (m) => m.formation_id === formation.id
-  );
+  // On utilise les données incluses dans l'objet formation s'il vient du backend avec les includes
+  // Sinon on fallback sur un tableau vide.
+  // Le backend getAllFormations inclut: modules, sessions.
+  const formationModules = formation.modules || [];
 
-  const formationSessions = sessions.filter((s) =>
-    formationModules.map((m) => m.id).includes(s.module_id)
-  );
+  const formationSessions = formation.sessions || [];
 
   const totalHours = formationModules.reduce(
     (sum, m) => sum + (m.hours || 0),

@@ -2,10 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-  formationAPI,
-  uploadAPI,
-} from "@/api/localDB";
+import api from "@/services/api";
+import Swal from 'sweetalert2';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Upload, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+
 
 export default function FormationFormDialog({
   formation,
@@ -38,7 +36,7 @@ export default function FormationFormDialog({
   onClose,
 }) {
   const [formData, setFormData] = useState({
-    category_id: "",
+    category: "",
     title: "",
     description: "",
     prerequisites: "",
@@ -55,7 +53,7 @@ export default function FormationFormDialog({
   useEffect(() => {
     if (formation) {
       setFormData({
-        category_id: formation.category_id || "",
+        category: formation.category || "",
         title: formation.title || "",
         description: formation.description || "",
         prerequisites: formation.prerequisites || "",
@@ -69,18 +67,35 @@ export default function FormationFormDialog({
 
   /* ----------------------------- SAVE FORMATION ----------------------------- */
   const saveMutation = useMutation({
-    mutationFn: (data) =>
-      formation
-        ? formationAPI.update(formation.id, data)
-        : formationAPI.create(data),
+    mutationFn: async (data) => {
+      if (formation) {
+        return (await api.put(`/formations/${formation.id}`, data)).data;
+      }
+      return (await api.post('/formations', data)).data;
+    },
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["formations"] });
-      toast.success(formation ? "Formation modifiée" : "Formation créée");
       onClose();
+      Swal.fire({
+        icon: 'success',
+        title: formation ? "Modifiée !" : "Créée !",
+        text: formation ? "La formation a été modifiée avec succès." : "La nouvelle formation a été ajoutée.",
+        timer: 1500,
+        showConfirmButton: false
+      });
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Une erreur est survenue lors de l'enregistrement.",
+      });
+    }
   });
 
+  /* ----------------------------- IMAGE UPLOAD ----------------------------- */
   /* ----------------------------- IMAGE UPLOAD ----------------------------- */
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -88,16 +103,42 @@ export default function FormationFormDialog({
     setUploading(true);
 
     try {
-      const { file_url } = await uploadAPI.UploadFile({ file });
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': undefined,
+        },
+      });
+
+      const { file_url } = response.data;
 
       setFormData((prev) => ({
         ...prev,
         image_url: file_url,
       }));
 
-      toast.success("Image téléchargée");
+      Swal.fire({
+        icon: 'success',
+        title: 'Image téléchargée',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
     } catch (err) {
-      toast.error("Erreur lors du téléchargement");
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Erreur lors du téléchargement de l'image",
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
     } finally {
       setUploading(false);
     }
@@ -181,9 +222,9 @@ export default function FormationFormDialog({
             <div>
               <Label>Catégorie *</Label>
               <Select
-                value={formData.category_id}
+                value={formData.category}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, category_id: value })
+                  setFormData({ ...formData, category: value })
                 }
               >
                 <SelectTrigger>
@@ -191,8 +232,8 @@ export default function FormationFormDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem value={cat.id} key={cat.id}>
-                      {cat.name}
+                    <SelectItem value={cat} key={cat}>
+                      {cat}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -42,13 +42,18 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
         last_name: teacher.last_name || "",
         email: teacher.email || "",
         phone: teacher.phone || "",
-        specialties: teacher.specialties || [],
+        specialties: Array.isArray(teacher.specialties) ? teacher.specialties : [],
         bio: teacher.bio || "",
         photo_url: teacher.photo_url || "",
         status: teacher.status || "actif",
         hire_date: teacher.hire_date ? new Date(teacher.hire_date).toISOString().split("T")[0] : "",
-        hourly_rate: teacher.hourly_rate || 0,
-        availability: teacher.availability || [],
+        availability: Array.isArray(teacher.availability)
+          ? teacher.availability.map(slot => ({
+            day: slot.day || "Lundi",
+            start_time: slot.start_time || "",
+            end_time: slot.end_time || ""
+          }))
+          : [],
       });
     }
   }, [teacher]);
@@ -123,7 +128,10 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
 
   const addSpecialty = () => {
     if (newSpecialty.trim()) {
-      setFormData({ ...formData, specialties: [...formData.specialties, newSpecialty.trim()] });
+      setFormData({
+        ...formData,
+        specialties: [...(Array.isArray(formData.specialties) ? formData.specialties : []), newSpecialty.trim()]
+      });
       setNewSpecialty("");
     }
   };
@@ -135,23 +143,31 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
   const addAvailability = () => {
     setFormData({
       ...formData,
-      availability: [...formData.availability, { day: "Lundi", start_time: "09:00", end_time: "17:00" }],
+      availability: [...(Array.isArray(formData.availability) ? formData.availability : []), { day: "Lundi", start_time: "09:00", end_time: "17:00" }],
     });
   };
 
   const removeAvailability = (index) => {
-    setFormData({ ...formData, availability: formData.availability.filter((_, i) => i !== index) });
+    const currentAvailability = Array.isArray(formData.availability) ? formData.availability : [];
+    setFormData({ ...formData, availability: currentAvailability.filter((_, i) => i !== index) });
   };
 
   const updateAvailability = (index, field, value) => {
-    const newAvailability = [...formData.availability];
-    newAvailability[index] = { ...newAvailability[index], [field]: value };
-    setFormData({ ...formData, availability: newAvailability });
+    const currentAvailability = Array.isArray(formData.availability) ? formData.availability : [];
+    const newAvailability = [...currentAvailability];
+    if (newAvailability[index]) {
+      newAvailability[index] = { ...newAvailability[index], [field]: value };
+      setFormData({ ...formData, availability: newAvailability });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    saveMutation.mutate(formData);
+    const submissionData = {
+      ...formData,
+      hourly_rate: parseFloat(formData.hourly_rate) || 0,
+    };
+    saveMutation.mutate(submissionData);
   };
 
   const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
@@ -197,7 +213,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
             <div>
               <Label>Prénom :</Label>
               <Input
-                value={formData.first_name}
+                value={formData.first_name ?? ""}
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 required
               />
@@ -206,7 +222,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
             <div>
               <Label>Nom :</Label>
               <Input
-                value={formData.last_name}
+                value={formData.last_name ?? ""}
                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                 required
               />
@@ -216,7 +232,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
               <Label>Email :</Label>
               <Input
                 type="email"
-                value={formData.email}
+                value={formData.email ?? ""}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
@@ -225,7 +241,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
             <div>
               <Label>Téléphone :</Label>
               <Input
-                value={formData.phone}
+                value={formData.phone ?? ""}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
@@ -233,7 +249,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
             <div>
               <Label>N° Identification :</Label>
               <Input
-                value={formData.registration_number}
+                value={formData.registration_number ?? ""}
                 onChange={(e) => setFormData({ ...formData, registration_number: e.target.value })}
               />
             </div>
@@ -242,7 +258,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
               <Label>Date d'Embauche :</Label>
               <Input
                 type="date"
-                value={formData.hire_date}
+                value={formData.hire_date ?? ""}
                 onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
               />
             </div>
@@ -252,14 +268,14 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
               <Input
                 type="number"
                 min="0"
-                value={formData.hourly_rate}
-                onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) })}
+                value={formData.hourly_rate ?? 0}
+                onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
               />
             </div>
 
             <div>
               <Label>Statut :</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+              <Select value={formData.status ?? "actif"} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -276,7 +292,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
           <div>
             <Label>Biographie :</Label>
             <Textarea
-              value={formData.bio}
+              value={formData.bio ?? ""}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={3}
             />
@@ -287,7 +303,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
             <Label>Spécialités :</Label>
             <div className="flex gap-2 mb-2">
               <Input
-                value={newSpecialty}
+                value={newSpecialty ?? ""}
                 onChange={(e) => setNewSpecialty(e.target.value)}
                 placeholder="Ex: Excel, Comptabilité..."
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSpecialty())}
@@ -323,7 +339,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
                   <div className="grid grid-cols-4 gap-3 items-end">
                     <div>
                       <Label className="text-xs">Jour</Label>
-                      <Select value={slot.day} onValueChange={(value) => updateAvailability(index, "day", value)}>
+                      <Select value={slot.day ?? "Lundi"} onValueChange={(value) => updateAvailability(index, "day", value)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -340,7 +356,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
                       <Label className="text-xs">Début</Label>
                       <Input
                         type="time"
-                        value={slot.start_time}
+                        value={slot.start_time ?? ""}
                         onChange={(e) => updateAvailability(index, "start_time", e.target.value)}
                       />
                     </div>
@@ -348,7 +364,7 @@ export default function TeacherFormDialog({ teacher, open, onClose }) {
                       <Label className="text-xs">Fin</Label>
                       <Input
                         type="time"
-                        value={slot.end_time}
+                        value={slot.end_time ?? ""}
                         onChange={(e) => updateAvailability(index, "end_time", e.target.value)}
                       />
                     </div>

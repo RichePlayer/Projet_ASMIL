@@ -45,6 +45,8 @@ async function main() {
     });
     console.log(`Created/Updated Secretary: ${secretary.email} (Password: ${secretaryPassword})`);
 
+
+
     console.log('Seeding finished.');
 }
 
