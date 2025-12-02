@@ -39,7 +39,7 @@ export default function Teachers() {
     const { data: teachers = [], isLoading } = useQuery({
         queryKey: ["teachers"],
         queryFn: async () => {
-            const response = await api.get('/teachers');
+            const response = await api.get('/teachers?limit=1000');
             return response.data.teachers || [];
         },
     });

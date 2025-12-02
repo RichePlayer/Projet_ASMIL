@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { sessionAPI } from "@/api/localDB";
-import { moduleAPI } from "@/api/localDB";
-import { teacherAPI } from "@/api/localDB";
+import sessionService from "@/services/sessionService";
+import teacherService from "@/services/teacherService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,17 +15,12 @@ export default function SessionCalendarAdvanced() {
 
   const { data: sessions = [] } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => sessionAPI.list(),
-  });
-
-  const { data: modules = [] } = useQuery({
-    queryKey: ["modules"],
-    queryFn: () => moduleAPI.list(),
+    queryFn: sessionService.getAll,
   });
 
   const { data: teachers = [] } = useQuery({
     queryKey: ["teachers"],
-    queryFn: () => teacherAPI.list(),
+    queryFn: teacherService.getAll,
   });
 
   const detectConflicts = (session) => {
@@ -84,6 +78,7 @@ export default function SessionCalendarAdvanced() {
 
   const getStatusColor = (status) => {
     const colors = {
+      "planifiée": "bg-blue-100 text-blue-800 border-blue-200",
       "à venir": "bg-blue-100 text-blue-800 border-blue-200",
       "en cours": "bg-green-100 text-green-800 border-green-200",
       "terminée": "bg-slate-100 text-slate-800 border-slate-200",
@@ -171,9 +166,8 @@ export default function SessionCalendarAdvanced() {
               return (
                 <div
                   key={day.toString()}
-                  className={`min-h-[100px] p-2 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md ${
-                    isToday ? "border-red-600 bg-red-50" : "border-slate-200 bg-white"
-                  } ${hasConflicts ? "ring-2 ring-orange-500" : ""}`}
+                  className={`min-h-[100px] p-2 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md ${isToday ? "border-red-600 bg-red-50" : "border-slate-200 bg-white"
+                    } ${hasConflicts ? "ring-2 ring-orange-500" : ""}`}
                   onClick={() => setSelectedDate(day)}
                 >
                   <div className={`text-sm font-semibold mb-1 ${isToday ? "text-red-600" : "text-slate-900"}`}>
@@ -181,18 +175,17 @@ export default function SessionCalendarAdvanced() {
                   </div>
                   <div className="space-y-1">
                     {daySessions.slice(0, 2).map((session) => {
-                      const module = modules.find((m) => m.id === session.module_id);
                       const conflicts = detectConflicts(session);
+                      const formationName = session.module?.formation?.title || "Session";
                       return (
                         <div
                           key={session.id}
-                          className={`text-xs p-1 rounded ${
-                            conflicts.length > 0
-                              ? "bg-orange-100 border border-orange-300"
-                              : getStatusColor(session.status)
-                          }`}
+                          className={`text-xs p-1 rounded ${conflicts.length > 0
+                            ? "bg-orange-100 border border-orange-300"
+                            : getStatusColor(session.status)
+                            }`}
                         >
-                          <div className="font-medium truncate">{module?.title || "Session"}</div>
+                          <div className="font-medium truncate">{formationName}</div>
                           {session.room && <div className="text-[10px] opacity-75">{session.room}</div>}
                         </div>
                       );
@@ -221,20 +214,19 @@ export default function SessionCalendarAdvanced() {
             ) : (
               <div className="space-y-3">
                 {getSessionsForDate(selectedDate).map((session) => {
-                  const module = modules.find((m) => m.id === session.module_id);
                   const teacher = teachers.find((t) => t.id === session.teacher_id);
                   const conflicts = detectConflicts(session);
+                  const formationName = session.module?.formation?.title || "Formation";
 
                   return (
                     <div
                       key={session.id}
-                      className={`p-4 border-2 rounded-lg ${
-                        conflicts.length > 0 ? "border-orange-300 bg-orange-50" : "border-slate-200"
-                      }`}
+                      className={`p-4 border-2 rounded-lg ${conflicts.length > 0 ? "border-orange-300 bg-orange-50" : "border-slate-200"
+                        }`}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h4 className="font-semibold text-slate-900">{module?.title}</h4>
+                          <h4 className="font-semibold text-slate-900">{formationName}</h4>
                           {teacher && (
                             <p className="text-sm text-slate-600">
                               {teacher.first_name} {teacher.last_name}

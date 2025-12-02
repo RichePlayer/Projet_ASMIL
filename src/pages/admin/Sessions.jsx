@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { sessionAPI } from "@/api/localDB";
-import { moduleAPI } from "@/api/localDB";
-import { formationAPI } from "@/api/localDB";
+import sessionService from "@/services/sessionService";
+import moduleService from "@/services/moduleService";
+import teacherService from "@/services/teacherService";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,21 +22,21 @@ export default function Sessions() {
 
   const { data: sessions = [], isLoading } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => sessionAPI.list("-start_date", 200),
+    queryFn: sessionService.getAll,
   });
 
   const { data: modules = [] } = useQuery({
     queryKey: ["modules"],
-    queryFn: () => moduleAPI.list(),
+    queryFn: moduleService.getAll,
   });
 
-  const { data: formations = [] } = useQuery({
-    queryKey: ["formations"],
-    queryFn: () => formationAPI.list(),
+  const { data: teachers = [] } = useQuery({
+    queryKey: ["teachers"],
+    queryFn: teacherService.getAll,
   });
 
   const deleteSessionMutation = useMutation({
-    mutationFn: (id) => sessionAPI.delete(id),
+    mutationFn: (id) => sessionService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
     },
@@ -54,9 +54,7 @@ export default function Sessions() {
 
   const getFormationName = (moduleId) => {
     const module = modules.find((m) => m.id === moduleId);
-    if (!module) return "";
-    const formation = formations.find((f) => f.id === module.formation_id);
-    return formation?.title || "";
+    return module?.formation?.title || "";
   };
 
   return (
@@ -153,7 +151,7 @@ export default function Sessions() {
         <SessionFormDialog
           session={editingSession}
           modules={modules}
-          formations={formations}
+          teachers={teachers}
           open={showForm}
           onClose={() => {
             setShowForm(false);

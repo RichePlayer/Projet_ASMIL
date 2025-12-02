@@ -41,7 +41,7 @@ export default function Formations() {
   const { data: formations = [], isLoading } = useQuery({
     queryKey: ["formations"],
     queryFn: async () => {
-      const response = await api.get('/formations');
+      const response = await api.get('/formations?limit=1000');
       return response.data.formations || [];
     },
   });

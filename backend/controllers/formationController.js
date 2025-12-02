@@ -70,7 +70,6 @@ const getAllFormations = async (req, res) => {
                     },
                     _count: {
                         select: {
-                            sessions: true,
                             certificates: true
                         }
                     }

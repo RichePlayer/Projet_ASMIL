@@ -19,72 +19,104 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import ExportButton from "@/components/shared/ExportButton";
-import { getAuditLogs, filterAuditLogs, exportAuditLogs, clearAuditLogs } from "@/utils/auditLog";
-import { Search, Download, Trash2, Shield, User, FileText, Settings, Database, AlertCircle } from "lucide-react";
+import { getAllAuditLogs, getAuditStats, clearOldLogs } from "@/utils/auditLogApi";
+import { Search, Trash2, Shield, User, FileText, Settings, AlertCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { formatDate } from "@/utils/exportHelpers";
 
 export default function Logs() {
     const [logs, setLogs] = useState([]);
-    const [filteredLogs, setFilteredLogs] = useState([]);
+    const [stats, setStats] = useState({
+        total: 0,
+        todayCount: 0,
+        weekCount: 0,
+        failedLogins: 0
+    });
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [dateFilter, setDateFilter] = useState("all");
+    const [loading, setLoading] = useState(false);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 50,
+        total: 0,
+        totalPages: 0
+    });
 
-    // Load logs on mount
+    // Load logs and stats on mount and when filters change
     useEffect(() => {
         loadLogs();
+    }, [pagination.page, categoryFilter, dateFilter, searchTerm]);
+
+    useEffect(() => {
+        loadStats();
     }, []);
 
     // Load logs
-    const loadLogs = () => {
-        const allLogs = getAuditLogs();
-        setLogs(allLogs);
-        setFilteredLogs(allLogs);
-    };
+    const loadLogs = async () => {
+        setLoading(true);
+        try {
+            const params = {
+                page: pagination.page,
+                limit: pagination.limit
+            };
 
-    // Apply filters
-    useEffect(() => {
-        let filtered = [...logs];
-
-        // Category filter
-        if (categoryFilter !== "all") {
-            filtered = filtered.filter(log => log.action.startsWith(categoryFilter + "."));
-        }
-
-        // Date filter
-        if (dateFilter !== "all") {
-            const now = new Date();
-            const filterDate = new Date();
-
-            switch (dateFilter) {
-                case "today":
-                    filterDate.setHours(0, 0, 0, 0);
-                    break;
-                case "week":
-                    filterDate.setDate(now.getDate() - 7);
-                    break;
-                case "month":
-                    filterDate.setMonth(now.getMonth() - 1);
-                    break;
+            // Add filters
+            if (categoryFilter !== "all") {
+                params.category = categoryFilter;
             }
 
-            filtered = filtered.filter(log => new Date(log.timestamp) >= filterDate);
-        }
+            if (dateFilter !== "all") {
+                const now = new Date();
+                let startDate = new Date();
 
-        // Search filter
-        if (searchTerm) {
-            const searchLower = searchTerm.toLowerCase();
-            filtered = filtered.filter(log =>
-                log.user?.name?.toLowerCase().includes(searchLower) ||
-                log.user?.email?.toLowerCase().includes(searchLower) ||
-                log.action.toLowerCase().includes(searchLower) ||
-                JSON.stringify(log.details).toLowerCase().includes(searchLower)
-            );
-        }
+                switch (dateFilter) {
+                    case "today":
+                        startDate.setHours(0, 0, 0, 0);
+                        break;
+                    case "week":
+                        startDate.setDate(now.getDate() - 7);
+                        break;
+                    case "month":
+                        startDate.setMonth(now.getMonth() - 1);
+                        break;
+                }
 
-        setFilteredLogs(filtered);
-    }, [logs, categoryFilter, dateFilter, searchTerm]);
+                params.start_date = startDate.toISOString();
+                params.end_date = now.toISOString();
+            }
+
+            if (searchTerm) {
+                params.search = searchTerm;
+            }
+
+            const response = await getAllAuditLogs(params);
+            setLogs(response.auditLogs || []);
+            setPagination(prev => ({
+                ...prev,
+                total: response.pagination.total,
+                totalPages: response.pagination.totalPages
+            }));
+        } catch (error) {
+            console.error('Erreur chargement logs:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Load statistics
+    const loadStats = async () => {
+        try {
+            const response = await getAuditStats();
+            setStats(response.statistics || {
+                total: 0,
+                todayCount: 0,
+                weekCount: 0,
+                failedLogins: 0
+            });
+        } catch (error) {
+            console.error('Erreur chargement statistiques:', error);
+        }
+    };
 
     // Get action badge
     const getActionBadge = (action) => {
@@ -135,12 +167,23 @@ export default function Logs() {
         return descriptions[action] || action;
     };
 
-    // Handle clear logs
-    const handleClearLogs = () => {
-        if (confirm("Êtes-vous sûr de vouloir supprimer tous les logs? Cette action est irréversible.")) {
-            clearAuditLogs();
-            loadLogs();
+    // Handle clear old logs
+    const handleClearOldLogs = async () => {
+        if (confirm("Êtes-vous sûr de vouloir supprimer les logs de plus de 90 jours? Cette action est irréversible.")) {
+            try {
+                await clearOldLogs(90);
+                loadLogs();
+                loadStats();
+            } catch (error) {
+                console.error('Erreur suppression logs:', error);
+                alert('Erreur lors de la suppression des logs');
+            }
         }
+    };
+
+    // Handle page change
+    const handlePageChange = (newPage) => {
+        setPagination(prev => ({ ...prev, page: newPage }));
     };
 
     return (
@@ -152,73 +195,67 @@ export default function Logs() {
                     <p className="text-slate-500 mt-1">Historique complet des actions système</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleClearLogs} className="gap-2 text-red-600 hover:text-red-700">
+                    <Button variant="outline" onClick={handleClearOldLogs} className="gap-2 text-red-600 hover:text-red-700">
                         <Trash2 className="h-4 w-4" />
-                        Vider
+                        Vider anciens logs
                     </Button>
                 </div>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <Card className="border-none shadow-md">
+                <Card className="border-none shadow-md bg-gradient-to-br from-white to-slate-50">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">Total Logs</p>
-                                <h3 className="text-2xl font-bold text-slate-900">{logs.length}</h3>
+                                <h3 className="text-2xl font-bold text-slate-900">{stats.total}</h3>
                             </div>
-                            <Database className="h-8 w-8 text-slate-400" />
+                            <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                                <FileText className="h-6 w-6 text-slate-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-md">
+                <Card className="border-none shadow-md bg-gradient-to-br from-blue-50 to-white">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">Aujourd'hui</p>
-                                <h3 className="text-2xl font-bold text-slate-900">
-                                    {logs.filter(l => {
-                                        const today = new Date();
-                                        today.setHours(0, 0, 0, 0);
-                                        return new Date(l.timestamp) >= today;
-                                    }).length}
-                                </h3>
+                                <p className="text-sm text-blue-600">Aujourd'hui</p>
+                                <h3 className="text-2xl font-bold text-blue-900">{stats.todayCount}</h3>
                             </div>
-                            <Shield className="h-8 w-8 text-blue-400" />
+                            <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                <Shield className="h-6 w-6 text-blue-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-md">
+                <Card className="border-none shadow-md bg-gradient-to-br from-emerald-50 to-white">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">Cette semaine</p>
-                                <h3 className="text-2xl font-bold text-slate-900">
-                                    {logs.filter(l => {
-                                        const weekAgo = new Date();
-                                        weekAgo.setDate(weekAgo.getDate() - 7);
-                                        return new Date(l.timestamp) >= weekAgo;
-                                    }).length}
-                                </h3>
+                                <p className="text-sm text-emerald-600">Cette semaine</p>
+                                <h3 className="text-2xl font-bold text-emerald-900">{stats.weekCount}</h3>
                             </div>
-                            <FileText className="h-8 w-8 text-emerald-400" />
+                            <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <FileText className="h-6 w-6 text-emerald-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-md">
+                <Card className="border-none shadow-md bg-gradient-to-br from-red-50 to-white">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">Échecs connexion</p>
-                                <h3 className="text-2xl font-bold text-slate-900">
-                                    {logs.filter(l => l.action === 'auth.login_failed').length}
-                                </h3>
+                                <p className="text-sm text-red-600">Échecs connexion</p>
+                                <h3 className="text-2xl font-bold text-red-900">{stats.failedLogins}</h3>
                             </div>
-                            <AlertCircle className="h-8 w-8 text-red-400" />
+                            <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                                <AlertCircle className="h-6 w-6 text-red-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -235,14 +272,20 @@ export default function Logs() {
                                 <Input
                                     placeholder="Rechercher dans les logs..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPagination(prev => ({ ...prev, page: 1 }));
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
                         </div>
 
                         {/* Category Filter */}
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                        <Select value={categoryFilter} onValueChange={(value) => {
+                            setCategoryFilter(value);
+                            setPagination(prev => ({ ...prev, page: 1 }));
+                        }}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Catégorie" />
                             </SelectTrigger>
@@ -251,13 +294,18 @@ export default function Logs() {
                                 <SelectItem value="auth">Authentification</SelectItem>
                                 <SelectItem value="user">Utilisateurs</SelectItem>
                                 <SelectItem value="student">Étudiants</SelectItem>
+                                <SelectItem value="teacher">Enseignants</SelectItem>
                                 <SelectItem value="invoice">Factures</SelectItem>
+                                <SelectItem value="payment">Paiements</SelectItem>
                                 <SelectItem value="system">Système</SelectItem>
                             </SelectContent>
                         </Select>
 
                         {/* Date Filter */}
-                        <Select value={dateFilter} onValueChange={setDateFilter}>
+                        <Select value={dateFilter} onValueChange={(value) => {
+                            setDateFilter(value);
+                            setPagination(prev => ({ ...prev, page: 1 }));
+                        }}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Période" />
                             </SelectTrigger>
@@ -275,8 +323,13 @@ export default function Logs() {
             {/* Logs Table */}
             <Card className="border-none shadow-md">
                 <CardHeader>
-                    <CardTitle>Logs ({filteredLogs.length})</CardTitle>
-                    <CardDescription>Historique des actions système</CardDescription>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Logs ({pagination.total})</CardTitle>
+                            <CardDescription>Historique des actions système</CardDescription>
+                        </div>
+                        {loading && <Loader2 className="h-5 w-5 animate-spin text-slate-400" />}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <div className="rounded-lg border">
@@ -291,32 +344,38 @@ export default function Logs() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredLogs.length === 0 ? (
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center py-8">
+                                            <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-400" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : logs.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center text-slate-500 py-8">
                                             Aucun log trouvé
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filteredLogs.map((log) => (
+                                    logs.map((log) => (
                                         <TableRow key={log.id}>
                                             <TableCell className="text-sm text-slate-600">
-                                                {formatDate(log.timestamp, 'datetime')}
+                                                {formatDate(log.created_at, 'datetime')}
                                             </TableCell>
                                             <TableCell>{getActionBadge(log.action)}</TableCell>
                                             <TableCell className="font-medium">{getActionDescription(log)}</TableCell>
                                             <TableCell>
-                                                {log.user ? (
+                                                {log.user_name ? (
                                                     <div>
-                                                        <p className="font-medium text-sm">{log.user.name}</p>
-                                                        <p className="text-xs text-slate-500">{log.user.email}</p>
+                                                        <p className="font-medium text-sm">{log.user_name}</p>
+                                                        <p className="text-xs text-slate-500">{log.user_email}</p>
                                                     </div>
                                                 ) : (
                                                     <span className="text-slate-400 text-sm">Système</span>
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-sm text-slate-600 max-w-xs truncate">
-                                                {JSON.stringify(log.details)}
+                                                {log.details ? JSON.stringify(log.details) : '-'}
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -324,6 +383,35 @@ export default function Logs() {
                             </TableBody>
                         </Table>
                     </div>
+
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-4">
+                            <p className="text-sm text-slate-500">
+                                Page {pagination.page} sur {pagination.totalPages}
+                            </p>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePageChange(pagination.page - 1)}
+                                    disabled={pagination.page === 1 || loading}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Précédent
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePageChange(pagination.page + 1)}
+                                    disabled={pagination.page >= pagination.totalPages || loading}
+                                >
+                                    Suivant
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

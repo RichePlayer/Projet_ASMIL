@@ -73,7 +73,6 @@ export const PERMISSIONS = {
     SYSTEM_SETTINGS: 'system.settings',
     SYSTEM_LOGS: 'system.logs',
     SYSTEM_BACKUPS: 'system.backups',
-    FINANCE_VIEW: 'finance.view',
 };
 
 // Role-based permission sets - ONLY Admin and Gestionnaire (Secretary)

@@ -36,7 +36,6 @@ model Formation {
   prerequisites String?       @db.Text
   created_at    DateTime      @default(now())
   modules       Module[]
-  sessions      Session[]
   certificates  Certificate[]
 
   @@map("formations")
@@ -51,6 +50,7 @@ model Module {
   hours        Int?
   order_index  Int?
   created_at   DateTime  @default(now())
+  sessions     Session[]
 
   @@map("modules")
 }
@@ -76,9 +76,9 @@ model Teacher {
 }
 
 model Session {
-  id           Int          @id @default(autoincrement())
-  formation_id Int?
-  formation    Formation?   @relation(fields: [formation_id], references: [id], onDelete: Cascade)
+  id         Int        @id @default(autoincrement())
+  module_id  Int?
+  module     Module?    @relation(fields: [module_id], references: [id], onDelete: Cascade)
   teacher_id   Int?
   teacher      Teacher?     @relation(fields: [teacher_id], references: [id])
   start_date   DateTime     @db.Date
@@ -213,4 +213,26 @@ model Announcement {
   created_at      DateTime @default(now())
 
   @@map("announcements")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  user_id     Int?
+  user_name   String?  @db.VarChar(100)
+  user_email  String?  @db.VarChar(150)
+  action      String   @db.VarChar(100)
+  category    String   @db.VarChar(50)
+  entity_type String?  @db.VarChar(50)
+  entity_id   Int?
+  ip_address  String?  @db.VarChar(50)
+  user_agent  String?  @db.Text
+  details     Json?
+  status      String?  @default("success") @db.VarChar(20)
+  created_at  DateTime @default(now())
+
+  @@map("audit_logs")
+  @@index([user_id])
+  @@index([action])
+  @@index([category])
+  @@index([created_at])
 }

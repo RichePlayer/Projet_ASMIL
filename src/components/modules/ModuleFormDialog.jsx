@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { moduleAPI } from "@/api/localDB";
+import moduleService from "@/services/moduleService";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
@@ -26,7 +26,7 @@ export default function ModuleFormDialog({ module, formations, open, onClose }) 
   useEffect(() => {
     if (module) {
       setFormData({
-        formation_id: module.formation_id || "",
+        formation_id: module.formation_id?.toString() || "",
         title: module.title || "",
         description: module.description || "",
         hours: module.hours || 0,
@@ -36,8 +36,8 @@ export default function ModuleFormDialog({ module, formations, open, onClose }) 
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      if (module) return moduleAPI.update(module.id, data);
-      return moduleAPI.create(data);
+      if (module) return moduleService.update(module.id, data);
+      return moduleService.create(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["modules"] });
@@ -59,19 +59,19 @@ export default function ModuleFormDialog({ module, formations, open, onClose }) 
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           <div>
             <Label>Formation :</Label>
             <Select
-              value={formData.formation_id}
-              onValueChange={(value) => setFormData({ ...formData, formation_id: value })}
+              value={formData.formation_id?.toString()}
+              onValueChange={(value) => setFormData({ ...formData, formation_id: parseInt(value) })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner une formation" />
               </SelectTrigger>
               <SelectContent>
                 {formations.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>{f.title}</SelectItem>
+                  <SelectItem key={f.id} value={f.id.toString()}>{f.title}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

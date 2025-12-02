@@ -20,7 +20,6 @@ import {
     GraduationCap,
     ShieldCheck,
     UserPlus,
-    FileBarChart,
     Database,
     AlertCircle,
     CheckCircle2,
@@ -34,11 +33,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: async () => (await api.get('/invoices')).data });
-    const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: async () => (await api.get('/payments')).data });
-    const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: async () => (await api.get('/enrollments')).data });
-    const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: async () => (await api.get('/students')).data });
-    const { data: teachers = [] } = useQuery({ queryKey: ["teachers"], queryFn: async () => (await api.get('/teachers')).data });
+    const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: async () => (await api.get('/invoices?limit=1000')).data });
+    const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: async () => (await api.get('/payments?limit=1000')).data });
+    const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: async () => (await api.get('/enrollments?limit=1000')).data });
+    const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: async () => (await api.get('/students?limit=1000')).data });
+    const { data: teachers = [] } = useQuery({ queryKey: ["teachers"], queryFn: async () => (await api.get('/teachers?limit=1000')).data });
 
     // ========== ADVANCED KPIs ==========
 
@@ -146,7 +145,6 @@ export default function AdminDashboard() {
     const quickActions = [
         { icon: UserPlus, label: "Nouvel Utilisateur", action: () => navigate("/admin/users"), color: "blue" },
         { icon: BookOpen, label: "Nouvelle Formation", action: () => navigate("/admin/formations"), color: "emerald" },
-        { icon: FileBarChart, label: "Rapport Mensuel", action: () => navigate("/admin/finance"), color: "violet" },
         { icon: ShieldCheck, label: "Voir Logs", action: () => navigate("/admin/logs"), color: "amber" },
     ];
     return (

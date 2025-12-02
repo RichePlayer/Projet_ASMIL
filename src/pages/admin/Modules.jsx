@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { moduleAPI, formationAPI } from "@/api/localDB";
+import moduleService from "@/services/moduleService";
+import formationService from "@/services/formationService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,16 +31,16 @@ export default function Modules() {
 
     const { data: modules = [], isLoading } = useQuery({
         queryKey: ["modules"],
-        queryFn: () => moduleAPI.list("-created_date", 200),
+        queryFn: moduleService.getAll,
     });
 
     const { data: formations = [] } = useQuery({
         queryKey: ["formations"],
-        queryFn: () => formationAPI.list(),
+        queryFn: formationService.getAll,
     });
 
     const deleteModuleMutation = useMutation({
-        mutationFn: (id) => moduleAPI.delete(id),
+        mutationFn: (id) => moduleService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["modules"] });
             toast.success("Module supprimé");
@@ -50,8 +51,16 @@ export default function Modules() {
         mod.title?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const getFormationName = (formationId) => {
-        return formations.find((f) => f.id === formationId)?.title || "Formation inconnue";
+    const getFormationName = (module) => {
+        // API returns formation object with title
+        if (module.formation && module.formation.title) {
+            return module.formation.title;
+        }
+        // Fallback to formation_id lookup
+        if (module.formation_id) {
+            return formations.find((f) => f.id === module.formation_id)?.title || "Formation inconnue";
+        }
+        return "Formation inconnue";
     };
 
     return (
@@ -134,7 +143,7 @@ export default function Modules() {
                                     <TableCell className="font-medium">{mod.title}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline" className="bg-red-50">
-                                            {getFormationName(mod.formation_id)}
+                                            {getFormationName(mod)}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>{mod.hours}h</TableCell>

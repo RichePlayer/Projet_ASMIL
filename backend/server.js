@@ -25,6 +25,10 @@ app.use('/api/students', studentRoutes);
 const formationRoutes = require('./routes/formationRoutes');
 app.use('/api/formations', formationRoutes);
 
+// Gestion des modules
+const moduleRoutes = require('./routes/moduleRoutes');
+app.use('/api/modules', moduleRoutes);
+
 // Gestion des enseignants
 const teacherRoutes = require('./routes/teacherRoutes');
 app.use('/api/teachers', teacherRoutes);
@@ -57,6 +61,9 @@ app.use('/api/certificates', certificateRoutes);
 const announcementRoutes = require('./routes/announcementRoutes');
 app.use('/api/announcements', announcementRoutes);
 
+// Gestion des logs d'audit
+const auditLogRoutes = require('./routes/auditLogRoutes');
+app.use('/api/audit-logs', auditLogRoutes);
 // Upload de fichiers
 const uploadRoutes = require('./routes/uploadRoutes');
 app.use('/api/upload', uploadRoutes);

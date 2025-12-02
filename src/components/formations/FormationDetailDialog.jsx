@@ -108,13 +108,13 @@ export default function FormationDetailDialog({
             <Badge variant="outline">{categoryName}</Badge>
           </div>
 
-          <Button
+          {/* <Button
             size="sm"
             className="absolute top-4 right-4 bg-white shadow-md text-slate-900 hover:bg-slate-100"
             onClick={onEdit}
           >
             Modifier
-          </Button>
+          </Button> */}
         </div>
 
         {/* ---------------------- Title & Description ---------------------- */}

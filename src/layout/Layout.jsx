@@ -23,7 +23,6 @@ import {
   Loader2,
   Shield,
   Database,
-  TrendingUp,
   UserCog
 } from "lucide-react";
 
@@ -40,7 +39,6 @@ const adminMenuItems = [
   { name: "Formations", icon: BookOpen, path: "/admin/formations" },
   { name: "Modules", icon: FileText, path: "/admin/modules" },
   { name: "Sessions", icon: Calendar, path: "/admin/sessions" },
-  { name: "Finance", icon: TrendingUp, path: "/admin/finance" },
   { name: "Logs", icon: Shield, path: "/admin/logs" },
   { name: "Sauvegardes", icon: Database, path: "/admin/backups" },
   { name: "Paramètres", icon: Settings, path: "/admin/settings" },

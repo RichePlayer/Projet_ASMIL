@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Layout from "./layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -10,7 +11,7 @@ import AdminTeachers from "./pages/admin/Teachers";
 import AdminFormations from "./pages/admin/Formations";
 import AdminModules from "./pages/admin/Modules";
 import AdminSessions from "./pages/admin/Sessions";
-import FinanceOverview from "./pages/admin/FinanceOverview";
+
 import Logs from "./pages/admin/Logs";
 import Backups from "./pages/admin/Backups";
 import SystemSettings from "./pages/admin/SystemSettings";
@@ -48,27 +49,31 @@ export default function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* Admin Routes - ONLY for Admin */}
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/teachers" element={<AdminTeachers />} />
-            <Route path="/admin/formations" element={<AdminFormations />} />
-            <Route path="/admin/modules" element={<AdminModules />} />
-            <Route path="/admin/sessions" element={<AdminSessions />} />
-            <Route path="/admin/finance" element={<FinanceOverview />} />
-            <Route path="/admin/logs" element={<Logs />} />
-            <Route path="/admin/backups" element={<Backups />} />
-            <Route path="/admin/settings" element={<SystemSettings />} />
+            <Route element={<ProtectedRoute allowedRoles={['Admin']}><Outlet /></ProtectedRoute>}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/teachers" element={<AdminTeachers />} />
+              <Route path="/admin/formations" element={<AdminFormations />} />
+              <Route path="/admin/modules" element={<AdminModules />} />
+              <Route path="/admin/sessions" element={<AdminSessions />} />
+
+              <Route path="/admin/logs" element={<Logs />} />
+              <Route path="/admin/backups" element={<Backups />} />
+              <Route path="/admin/settings" element={<SystemSettings />} />
+            </Route>
 
             {/* Secretary Routes - ONLY for Secretary */}
-            <Route path="/secretary/dashboard" element={<SecretaryDashboard />} />
-            <Route path="/secretary/students" element={<SecretaryStudents />} />
-            <Route path="/secretary/invoices" element={<SecretaryInvoices />} />
-            <Route path="/secretary/grades" element={<SecretaryGrades />} />
-            <Route path="/secretary/enrollments" element={<SecretaryEnrollments />} />
-            <Route path="/secretary/attendance" element={<SecretaryAttendance />} />
-            <Route path="/secretary/certificates" element={<SecretaryCertificates />} />
-            <Route path="/secretary/announcements" element={<SecretaryAnnouncements />} />
-            <Route path="/secretary/timetable" element={<SecretaryTimetable />} />
+            <Route element={<ProtectedRoute allowedRoles={['Secretary', 'Gestionnaire']}><Outlet /></ProtectedRoute>}>
+              <Route path="/secretary/dashboard" element={<SecretaryDashboard />} />
+              <Route path="/secretary/students" element={<SecretaryStudents />} />
+              <Route path="/secretary/invoices" element={<SecretaryInvoices />} />
+              <Route path="/secretary/grades" element={<SecretaryGrades />} />
+              <Route path="/secretary/enrollments" element={<SecretaryEnrollments />} />
+              <Route path="/secretary/attendance" element={<SecretaryAttendance />} />
+              <Route path="/secretary/certificates" element={<SecretaryCertificates />} />
+              <Route path="/secretary/announcements" element={<SecretaryAnnouncements />} />
+              <Route path="/secretary/timetable" element={<SecretaryTimetable />} />
+            </Route>
 
             {/* Shared Routes */}
             <Route path="/profile" element={<Profile />} />

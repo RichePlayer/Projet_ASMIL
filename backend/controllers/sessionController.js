@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 const createSession = async (req, res) => {
     try {
         const {
-            formation_id,
+            module_id,
             teacher_id,
             start_date,
             end_date,
@@ -16,12 +16,13 @@ const createSession = async (req, res) => {
             schedule
         } = req.body;
 
-        // Vérifier que la formation existe
-        const formation = await prisma.formation.findUnique({
-            where: { id: parseInt(formation_id) }
+        // Vérifier que le module existe
+        const module = await prisma.module.findUnique({
+            where: { id: parseInt(module_id) },
+            include: { formation: true }
         });
-        if (!formation) {
-            return res.status(404).json({ message: 'Formation non trouvée' });
+        if (!module) {
+            return res.status(404).json({ message: 'Module non trouvé' });
         }
 
         // Vérifier que l'enseignant existe si spécifié
@@ -36,7 +37,7 @@ const createSession = async (req, res) => {
 
         const session = await prisma.session.create({
             data: {
-                formation_id: parseInt(formation_id),
+                module_id: parseInt(module_id),
                 teacher_id: teacher_id ? parseInt(teacher_id) : null,
                 start_date: new Date(start_date),
                 end_date: new Date(end_date),
@@ -46,7 +47,11 @@ const createSession = async (req, res) => {
                 schedule: schedule || null
             },
             include: {
-                formation: true,
+                module: {
+                    include: {
+                        formation: true
+                    }
+                },
                 teacher: true
             }
         });
@@ -66,11 +71,11 @@ const createSession = async (req, res) => {
  */
 const getAllSessions = async (req, res) => {
     try {
-        const { page = 1, limit = 10, formation_id, teacher_id, status, start_date, end_date } = req.query;
+        const { page = 1, limit = 10, module_id, teacher_id, status, start_date, end_date } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const where = {};
-        if (formation_id) where.formation_id = parseInt(formation_id);
+        if (module_id) where.module_id = parseInt(module_id);
         if (teacher_id) where.teacher_id = parseInt(teacher_id);
         if (status) where.status = status;
 
@@ -88,7 +93,11 @@ const getAllSessions = async (req, res) => {
                 take: parseInt(limit),
                 orderBy: { start_date: 'desc' },
                 include: {
-                    formation: true,
+                    module: {
+                        include: {
+                            formation: true
+                        }
+                    },
                     teacher: true,
                     _count: {
                         select: { enrollments: true }
@@ -123,9 +132,9 @@ const getSessionById = async (req, res) => {
         const session = await prisma.session.findUnique({
             where: { id: parseInt(id) },
             include: {
-                formation: {
+                module: {
                     include: {
-                        modules: true
+                        formation: true
                     }
                 },
                 teacher: true,
@@ -157,7 +166,7 @@ const updateSession = async (req, res) => {
     try {
         const { id } = req.params;
         const {
-            formation_id,
+            module_id,
             teacher_id,
             start_date,
             end_date,
@@ -178,7 +187,7 @@ const updateSession = async (req, res) => {
         const session = await prisma.session.update({
             where: { id: parseInt(id) },
             data: {
-                formation_id: formation_id ? parseInt(formation_id) : undefined,
+                module_id: module_id ? parseInt(module_id) : undefined,
                 teacher_id: teacher_id !== undefined ? (teacher_id ? parseInt(teacher_id) : null) : undefined,
                 start_date: start_date ? new Date(start_date) : undefined,
                 end_date: end_date ? new Date(end_date) : undefined,
@@ -188,7 +197,11 @@ const updateSession = async (req, res) => {
                 schedule: schedule !== undefined ? schedule : undefined
             },
             include: {
-                formation: true,
+                module: {
+                    include: {
+                        formation: true
+                    }
+                },
                 teacher: true
             }
         });

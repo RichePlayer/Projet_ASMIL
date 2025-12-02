@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sessionAPI } from "@/api/localDB";
+import sessionService from "@/services/sessionService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function SessionFormDialog({ session, modules, formations, open, onClose }) {
+export default function SessionFormDialog({ session, modules = [], teachers = [], open, onClose }) {
   const [formData, setFormData] = useState({
     module_id: "",
     teacher_id: "",
@@ -30,7 +30,7 @@ export default function SessionFormDialog({ session, modules, formations, open, 
     end_date: "",
     room: "",
     capacity: 20,
-    status: "à venir",
+    status: "planifiée",
     schedule: [],
   });
 
@@ -39,13 +39,13 @@ export default function SessionFormDialog({ session, modules, formations, open, 
   useEffect(() => {
     if (session) {
       setFormData({
-        module_id: session.module_id || "",
-        teacher_id: session.teacher_id || "",
-        start_date: session.start_date || "",
-        end_date: session.end_date || "",
+        module_id: session.module_id?.toString() || "",
+        teacher_id: session.teacher_id?.toString() || "",
+        start_date: session.start_date ? session.start_date.split('T')[0] : "",
+        end_date: session.end_date ? session.end_date.split('T')[0] : "",
         room: session.room || "",
         capacity: session.capacity || 20,
-        status: session.status || "à venir",
+        status: session.status || "planifiée",
         schedule: session.schedule || [],
       });
     }
@@ -53,10 +53,15 @@ export default function SessionFormDialog({ session, modules, formations, open, 
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
+      const payload = {
+        ...data,
+        module_id: parseInt(data.module_id),
+        teacher_id: data.teacher_id && data.teacher_id !== "none" ? parseInt(data.teacher_id) : null,
+      };
       if (session) {
-        return sessionAPI.update(session.id, data);
+        return sessionService.update(session.id, payload);
       }
-      return sessionAPI.create(data);
+      return sessionService.create(payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
@@ -93,13 +98,6 @@ export default function SessionFormDialog({ session, modules, formations, open, 
     saveMutation.mutate(formData);
   };
 
-  const getFormationName = (moduleId) => {
-    const module = modules.find((m) => m.id === moduleId);
-    if (!module) return "";
-    const formation = formations.find((f) => f.id === module.formation_id);
-    return formation?.title || "";
-  };
-
   const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
   return (
@@ -121,10 +119,31 @@ export default function SessionFormDialog({ session, modules, formations, open, 
                 </SelectTrigger>
                 <SelectContent>
                   {modules.map((module) => (
-                    <SelectItem key={module.id} value={module.id}>
-                      {module.title} {getFormationName(module.id) && `(${getFormationName(module.id)})`}
+                    <SelectItem key={module.id} value={module.id.toString()}>
+                      {module.title} {module.formation ? `(${module.formation.title})` : ""}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="md:col-span-2">
+              <Label>Enseignant</Label>
+              <Select value={formData.teacher_id || "none"} onValueChange={(value) => setFormData({ ...formData, teacher_id: value === "none" ? null : value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un enseignant (optionnel)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucun enseignant</SelectItem>
+                  {teachers && teachers.length > 0 ? (
+                    teachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id.toString()}>
+                        {teacher.first_name} {teacher.last_name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="none" disabled>Aucun enseignant disponible</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -176,6 +195,7 @@ export default function SessionFormDialog({ session, modules, formations, open, 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="planifiée">Planifiée</SelectItem>
                   <SelectItem value="à venir">À venir</SelectItem>
                   <SelectItem value="en cours">En cours</SelectItem>
                   <SelectItem value="terminée">Terminée</SelectItem>
