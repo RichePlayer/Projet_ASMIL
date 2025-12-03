@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import localDB from "@/api/localDB";
+import enrollmentService from "@/services/enrollmentService";
+import studentService from "@/services/studentService";
+import sessionService from "@/services/sessionService";
+import moduleService from "@/services/moduleService";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +32,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import EnrollmentFormDialog from "@/components/enrollments/EnrollmentFormDialog";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function Enrollments() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,38 +43,52 @@ export default function Enrollments() {
   const queryClient = useQueryClient();
 
   // ============================
-  // FETCH DATA (localDB ONLY)
+  // FETCH DATA (Backend API)
   // ============================
 
   const { data: enrollments = [], isLoading } = useQuery({
     queryKey: ["enrollments"],
-    queryFn: () => localDB.enrollmentAPI.list("-created_date", 200),
+    queryFn: () => enrollmentService.getAll(),
   });
 
   const { data: students = [] } = useQuery({
     queryKey: ["students"],
-    queryFn: () => localDB.studentAPI.list(),
+    queryFn: () => studentService.getAll(),
   });
 
   const { data: sessions = [] } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => localDB.sessionAPI.list(),
+    queryFn: () => sessionService.getAll(),
   });
 
   const { data: modules = [] } = useQuery({
     queryKey: ["modules"],
-    queryFn: () => localDB.moduleAPI.list(),
+    queryFn: () => moduleService.getAll(),
   });
 
   // ============================
   // DELETE
   // ============================
   const deleteEnrollmentMutation = useMutation({
-    mutationFn: (id) => localDB.enrollmentAPI.delete(id),
+    mutationFn: (id) => enrollmentService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments"] });
-      toast.success("Inscription supprimée");
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimée !',
+        text: 'L\'inscription a été supprimée avec succès.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur est survenue lors de la suppression.',
+      });
+    }
   });
 
   // ============================
@@ -257,9 +274,6 @@ export default function Enrollments() {
               <TableHead className="font-bold">Étudiant</TableHead>
               <TableHead className="font-bold">Session / Module</TableHead>
               <TableHead className="font-bold">Date</TableHead>
-              <TableHead className="font-bold">Total</TableHead>
-              <TableHead className="font-bold">Payé</TableHead>
-              <TableHead className="font-bold">Reste</TableHead>
               <TableHead className="font-bold">Statut</TableHead>
               <TableHead className="font-bold text-right">Actions</TableHead>
             </TableRow>
@@ -268,21 +282,18 @@ export default function Enrollments() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   Chargement...
                 </TableCell>
               </TableRow>
             ) : filteredEnrollments.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   Aucune inscription trouvée
                 </TableCell>
               </TableRow>
             ) : (
               filteredEnrollments.map((e) => {
-                const reste =
-                  (e.total_amount || 0) - (e.paid_amount || 0);
-
                 return (
                   <TableRow key={e.id}>
                     <TableCell className="font-semibold">
@@ -292,27 +303,11 @@ export default function Enrollments() {
                     <TableCell>{getSessionInfo(e.session_id)}</TableCell>
 
                     <TableCell>
-                      {e.created_date
-                        ? format(new Date(e.created_date), "d MMM yyyy", {
+                      {e.enrollment_date
+                        ? format(new Date(e.enrollment_date), "d MMM yyyy", {
                           locale: fr,
                         })
                         : "-"}
-                    </TableCell>
-
-                    <TableCell>
-                      {(e.total_amount || 0).toLocaleString()} Ar
-                    </TableCell>
-
-                    <TableCell className="text-green-600">
-                      {(e.paid_amount || 0).toLocaleString()} Ar
-                    </TableCell>
-
-                    <TableCell
-                      className={
-                        reste > 0 ? "text-red-600" : "text-green-600"
-                      }
-                    >
-                      {reste.toLocaleString()} Ar
                     </TableCell>
 
                     <TableCell>
@@ -348,9 +343,20 @@ export default function Enrollments() {
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-700"
                             onClick={() => {
-                              if (confirm("Supprimer cette inscription ?")) {
-                                deleteEnrollmentMutation.mutate(e.id);
-                              }
+                              Swal.fire({
+                                title: 'Êtes-vous sûr ?',
+                                text: "Voulez-vous vraiment supprimer cette inscription ?",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Oui, supprimer',
+                                cancelButtonText: 'Annuler'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  deleteEnrollmentMutation.mutate(e.id);
+                                }
+                              });
                             }}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

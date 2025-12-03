@@ -70,7 +70,7 @@ function makeEntity(initial = []) {
 
 const categoriesInit = [
   { id: "c1", created_date: nowIso(), name: "Langue" },
-  { id: "c2", created_date: nowIso(), name: "Bureautique" },
+  { id: "c2", created_date: nowIso(), name: "Informatique" },
   { id: "c3", created_date: nowIso(), name: "Entrepreneuriat" },
 ];
 
@@ -79,10 +79,10 @@ const formationsInit = [
     id: "f1",
     created_date: nowIso(),
     category_id: "c2",
-    title: "Excel Avancé",
+    title: "Bureautique",
     description: "Maîtriser les fonctions avancées d’Excel.",
     duration_months: 2,
-    price: 150000,
+    price: 89000,
     type: "certifiante",
     image_url: "",
     prerequisites: "Connaissances Excel de base",
@@ -94,20 +94,11 @@ const modulesInit = [
     id: "m1",
     created_date: nowIso(),
     formation_id: "f1",
-    title: "Fonctions avancées",
-    description: "RechercheV, Index, Match...",
-    hours: 12,
+    title: "Français",
+    description: "Apprendre les bases du français",
+    hours: 8,
     order: 1,
-  },
-  {
-    id: "m2",
-    created_date: nowIso(),
-    formation_id: "f1",
-    title: "Tableaux croisés dynamiques",
-    description: "Analyse de données",
-    hours: 10,
-    order: 2,
-  },
+  }
 ];
 
 const sessionsInit = [
@@ -119,12 +110,11 @@ const sessionsInit = [
     teacher_id: "t1",
     start_date: "2025-11-01",
     end_date: "2025-11-30",
-    room: "Salle A",
-    capacity: 20,
+    room: "Salle 01",
+    capacity: 50,
     status: "en cours",
     schedule: [
-      { day: "Lundi", start_time: "09:00", end_time: "12:00" },
-      { day: "Mercredi", start_time: "13:30", end_time: "16:30" },
+      { day: "Lundi", start_time: "08:00", end_time: "12:00" },
     ],
   },
 ];
@@ -176,8 +166,8 @@ const enrollmentsInit = [
     student_id: "s1",
     session_id: "se1",
     status: "actif",
-    total_amount: 150000,
-    paid_amount: 50000,
+    total_amount: 89000,
+    paid_amount: 89000,
     notes: "Premier acompte",
   },
 ];
@@ -228,7 +218,7 @@ const invoicesInit = [
     created_date: nowIso(),
     invoice_number: "FAC-001",
     enrollment_id: "en1",
-    amount: 150000,
+    amount: 89000,
     due_date: "2025-11-15",
     notes: "",
   },
@@ -240,18 +230,9 @@ const paymentsInit = [
     created_date: nowIso(),
     invoice_id: "inv1",
     method: "espèces",
-    amount: 50000,
-    transaction_reference: "TXN-50000",
+    amount: 80000,
+    transaction_reference: "TXN-001",
     notes: "Acompte initial",
-  },
-  {
-    id: "p2",
-    created_date: nowIso(),
-    invoice_id: "inv2",
-    method: "mobile money",
-    amount: 300000,
-    transaction_reference: "MM-300000",
-    notes: "Paiement complet",
   },
 ];
 
@@ -332,7 +313,7 @@ export async function reconcileInvoicesStatus() {
     if (inv.status !== status) {
       try {
         await invoiceAPI.update(inv.id, { status });
-      } catch {}
+      } catch { }
     }
   }
 }

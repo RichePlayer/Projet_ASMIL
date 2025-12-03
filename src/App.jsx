@@ -26,6 +26,7 @@ import SecretaryCertificates from "./pages/secretary/Certificates";
 import SecretaryAnnouncements from "./pages/secretary/Announcements";
 import SecretaryTimetable from "./pages/secretary/Timetable";
 import SecretaryEnrollments from "./pages/secretary/Enrollments";
+import SecretaryPayments from "./pages/secretary/Payments";
 
 // Shared Pages
 import Profile from "./pages/Profile";
@@ -69,6 +70,7 @@ export default function App() {
               <Route path="/secretary/invoices" element={<SecretaryInvoices />} />
               <Route path="/secretary/grades" element={<SecretaryGrades />} />
               <Route path="/secretary/enrollments" element={<SecretaryEnrollments />} />
+              <Route path="/secretary/payments" element={<SecretaryPayments />} />
               <Route path="/secretary/attendance" element={<SecretaryAttendance />} />
               <Route path="/secretary/certificates" element={<SecretaryCertificates />} />
               <Route path="/secretary/announcements" element={<SecretaryAnnouncements />} />

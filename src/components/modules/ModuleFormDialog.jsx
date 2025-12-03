@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function ModuleFormDialog({ module, formations, open, onClose }) {
   const [formData, setFormData] = useState({
@@ -41,9 +41,23 @@ export default function ModuleFormDialog({ module, formations, open, onClose }) 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["modules"] });
-      toast.success(module ? "Module modifié" : "Module créé");
+      Swal.fire({
+        icon: 'success',
+        title: module ? 'Module modifié !' : 'Module créé !',
+        text: module ? 'Le module a été modifié avec succès.' : 'Le module a été créé avec succès.',
+        timer: 2000,
+        showConfirmButton: false
+      });
       onClose();
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur est survenue lors de l\'enregistrement.',
+      });
+    }
   });
 
   const handleSubmit = (e) => {

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ModuleFormDialog from "@/components/modules/ModuleFormDialog";
 import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function Modules() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -43,8 +44,20 @@ export default function Modules() {
         mutationFn: (id) => moduleService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["modules"] });
-            toast.success("Module supprimé");
+            Swal.fire(
+                'Supprimé !',
+                'Le module a été supprimé.',
+                'success'
+            );
         },
+        onError: (error) => {
+            console.error(error);
+            Swal.fire(
+                'Erreur',
+                'Une erreur est survenue lors de la suppression.',
+                'error'
+            );
+        }
     });
 
     const filteredModules = modules.filter((mod) =>
@@ -171,9 +184,20 @@ export default function Modules() {
 
                                                 <DropdownMenuItem
                                                     onClick={() => {
-                                                        if (confirm("Supprimer ce module ?")) {
-                                                            deleteModuleMutation.mutate(mod.id);
-                                                        }
+                                                        Swal.fire({
+                                                            title: 'Êtes-vous sûr ?',
+                                                            text: "Voulez-vous vraiment supprimer ce module ?",
+                                                            icon: 'warning',
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: '#d33',
+                                                            cancelButtonColor: '#3085d6',
+                                                            confirmButtonText: 'Oui, supprimer',
+                                                            cancelButtonText: 'Annuler'
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                deleteModuleMutation.mutate(mod.id);
+                                                            }
+                                                        });
                                                     }}
                                                     className="flex items-center gap-2 text-red-600 focus:text-red-700"
                                                 >

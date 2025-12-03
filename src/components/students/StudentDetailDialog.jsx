@@ -1,9 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  enrollmentAPI,
-  invoiceAPI,
-} from "@/api/localDB"; // ⬅️ LOCAL DB API
+import enrollmentService from "@/services/enrollmentService";
+import { invoiceAPI } from "@/api/localDB"; // ⬅️ LOCAL DB API for invoices (to be migrated later)
 import {
   Dialog,
   DialogContent,
@@ -34,10 +32,10 @@ export default function StudentDetailDialog({
   onClose,
   onEdit,
 }) {
-  // 🔥 Local Enrollments
+  // 🔥 Backend Enrollments
   const { data: enrollments = [] } = useQuery({
     queryKey: ["student-enrollments", student?.id],
-    queryFn: () => enrollmentAPI.filter((e) => e.student_id === student.id),
+    queryFn: () => enrollmentService.getAll({ student_id: student.id }),
     enabled: !!student?.id,
   });
 
@@ -147,10 +145,10 @@ export default function StudentDetailDialog({
                         <Calendar className="h-4 w-4 text-slate-400" />
                         {student.date_of_birth
                           ? format(
-                              new Date(student.date_of_birth),
-                              "d MMMM yyyy",
-                              { locale: fr }
-                            )
+                            new Date(student.date_of_birth),
+                            "d MMMM yyyy",
+                            { locale: fr }
+                          )
                           : "-"}
                       </p>
                     </div>
@@ -184,21 +182,7 @@ export default function StudentDetailDialog({
                       </p>
                     </div>
 
-                    <div>
-                      <p className="text-sm text-slate-500">
-                        Date d'Inscription
-                      </p>
-                      <p className="font-medium flex items-center gap-2 mt-1">
-                        <Calendar className="h-4 w-4 text-slate-400" />
-                        {student.enrollment_date
-                          ? format(
-                              new Date(student.enrollment_date),
-                              "d MMMM yyyy",
-                              { locale: fr }
-                            )
-                          : "-"}
-                      </p>
-                    </div>
+
                   </div>
                 </CardContent>
               </Card>
@@ -229,12 +213,12 @@ export default function StudentDetailDialog({
                           <div className="flex justify-between items-start">
                             <div>
                               <p className="font-semibold">
-                                Session #{enrollment.session_id}
+                                {enrollment.session?.module?.title || `Session #${enrollment.session_id}`}
                               </p>
                               <p className="text-sm text-slate-500 mt-1">
-                                {enrollment.created_date &&
+                                {enrollment.enrollment_date &&
                                   format(
-                                    new Date(enrollment.created_date),
+                                    new Date(enrollment.enrollment_date),
                                     "d MMM yyyy",
                                     { locale: fr }
                                   )}
@@ -243,11 +227,10 @@ export default function StudentDetailDialog({
 
                             <Badge
                               variant="outline"
-                              className={`${
-                                enrollment.status === "actif"
-                                  ? "bg-green-100 text-green-800 border-green-200"
-                                  : "bg-slate-100 text-slate-800 border-slate-200"
-                              }`}
+                              className={`${enrollment.status === "actif"
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-slate-100 text-slate-800 border-slate-200"
+                                }`}
                             >
                               {enrollment.status}
                             </Badge>
@@ -323,11 +306,10 @@ export default function StudentDetailDialog({
                               </p>
                               <Badge
                                 variant="outline"
-                                className={`${
-                                  invoice.status === "payée"
-                                    ? "bg-green-100 text-green-800 border-green-200"
-                                    : "bg-red-100 text-red-800 border-red-200"
-                                } mt-1`}
+                                className={`${invoice.status === "payée"
+                                  ? "bg-green-100 text-green-800 border-green-200"
+                                  : "bg-red-100 text-red-800 border-red-200"
+                                  } mt-1`}
                               >
                                 {invoice.status}
                               </Badge>

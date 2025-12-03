@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { studentAPI } from "@/api/localDB"; // ⬅️ LOCAL DB
+import studentService from "@/services/studentService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Plus,
   Search,
-  Filter,
   MoreVertical,
   Eye,
   Edit,
@@ -27,11 +26,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import StudentFormDialog from "@/components/students/StudentFormDialog";
 import StudentDetailDialog from "@/components/students/StudentDetailDialog";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function Students() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,18 +39,32 @@ export default function Students() {
 
   const queryClient = useQueryClient();
 
-  // ✅ Load Students from localDB
+  // ✅ Load Students from backend API
   const { data: students = [], isLoading } = useQuery({
     queryKey: ["students"],
-    queryFn: () => studentAPI.list(),
+    queryFn: () => studentService.getAll(),
   });
 
   const deleteStudentMutation = useMutation({
-    mutationFn: (id) => studentAPI.delete(id),
+    mutationFn: (id) => studentService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
-      toast.success("Étudiant supprimé avec succès");
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        text: 'L\'étudiant a été supprimé avec succès.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur est survenue lors de la suppression.',
+      });
+    }
   });
 
   const filteredStudents = students.filter((student) => {
@@ -88,9 +99,20 @@ export default function Students() {
   };
 
   const handleDelete = (id) => {
-    if (confirm("Supprimer cet étudiant ?")) {
-      deleteStudentMutation.mutate(id);
-    }
+    Swal.fire({
+      title: 'Êtes-vous sûr ?',
+      text: "Voulez-vous vraiment supprimer cet étudiant ?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteStudentMutation.mutate(id);
+      }
+    });
   };
 
   return (
@@ -150,7 +172,6 @@ export default function Students() {
               <TableHead>Nom Complet</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Téléphone</TableHead>
-              <TableHead>Date d'inscription</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -159,13 +180,13 @@ export default function Students() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Chargement...
                 </TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Aucun étudiant trouvé
                 </TableCell>
               </TableRow>
@@ -178,13 +199,6 @@ export default function Students() {
                   </TableCell>
                   <TableCell>{s.email || "-"}</TableCell>
                   <TableCell>{s.phone_parent || "-"}</TableCell>
-                  <TableCell>
-                    {s.enrollment_date
-                      ? format(new Date(s.enrollment_date), "d MMM yyyy", {
-                        locale: fr,
-                      })
-                      : "-"}
-                  </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"

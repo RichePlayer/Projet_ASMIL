@@ -41,7 +41,8 @@ export default function FormationFormDialog({
     description: "",
     prerequisites: "",
     duration_months: 1,
-    price: 0,
+    tuition_fee: 0,
+    registration_fee: 0,
     type: "certifiante",
     image_url: "",
   });
@@ -58,7 +59,8 @@ export default function FormationFormDialog({
         description: formation.description || "",
         prerequisites: formation.prerequisites || "",
         duration_months: formation.duration_months || 1,
-        price: formation.price || 0,
+        tuition_fee: formation.tuition_fee || 0,
+        registration_fee: formation.registration_fee || 0,
         type: formation.type || "certifiante",
         image_url: formation.image_url || "",
       });
@@ -278,16 +280,30 @@ export default function FormationFormDialog({
               />
             </div>
 
-            {/* PRICE */}
+            {/* TUITION FEE */}
             <div>
-              <Label>Prix (Ar) *</Label>
+              <Label>Écolage (Ar) *</Label>
               <Input
                 type="number"
                 required
                 min={0}
-                value={formData.price}
+                value={formData.tuition_fee}
                 onChange={(e) =>
-                  setFormData({ ...formData, price: Number(e.target.value) })
+                  setFormData({ ...formData, tuition_fee: Number(e.target.value) })
+                }
+              />
+            </div>
+
+            {/* REGISTRATION FEE */}
+            <div>
+              <Label>Droit d'inscription (Ar) *</Label>
+              <Input
+                type="number"
+                required
+                min={0}
+                value={formData.registration_fee}
+                onChange={(e) =>
+                  setFormData({ ...formData, registration_fee: Number(e.target.value) })
                 }
               />
             </div>

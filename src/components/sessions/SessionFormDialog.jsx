@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 
 export default function SessionFormDialog({ session, modules = [], teachers = [], open, onClose }) {
   const [formData, setFormData] = useState({
@@ -65,9 +65,23 @@ export default function SessionFormDialog({ session, modules = [], teachers = []
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
-      toast.success(session ? "Session modifiée" : "Session créée");
+      Swal.fire({
+        icon: 'success',
+        title: session ? 'Session modifiée !' : 'Session créée !',
+        text: session ? 'La session a été modifiée avec succès.' : 'La session a été créée avec succès.',
+        timer: 2000,
+        showConfirmButton: false
+      });
       onClose();
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur est survenue lors de l\'enregistrement.',
+      });
+    }
   });
 
   const addScheduleSlot = () => {

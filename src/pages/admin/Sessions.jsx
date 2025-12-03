@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SessionFormDialog from "@/components/sessions/SessionFormDialog";
 import SessionCard from "@/components/sessions/SessionCard";
 import SessionCalendarAdvanced from "@/components/sessions/SessionCalendarAdvanced";
+import Swal from 'sweetalert2';
 
 export default function Sessions() {
   const [showForm, setShowForm] = useState(false);
@@ -39,7 +40,20 @@ export default function Sessions() {
     mutationFn: (id) => sessionService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      Swal.fire(
+        'Supprimée !',
+        'La session a été supprimée.',
+        'success'
+      );
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire(
+        'Erreur',
+        'Une erreur est survenue lors de la suppression.',
+        'error'
+      );
+    }
   });
 
   const filteredSessions = sessions.filter((session) => {
@@ -131,9 +145,20 @@ export default function Sessions() {
                     setShowForm(true);
                   }}
                   onDelete={() => {
-                    if (confirm("Supprimer cette session ?")) {
-                      deleteSessionMutation.mutate(session.id);
-                    }
+                    Swal.fire({
+                      title: 'Êtes-vous sûr ?',
+                      text: "Voulez-vous vraiment supprimer cette session ?",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#d33',
+                      cancelButtonColor: '#3085d6',
+                      confirmButtonText: 'Oui, supprimer',
+                      cancelButtonText: 'Annuler'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        deleteSessionMutation.mutate(session.id);
+                      }
+                    });
                   }}
                 />
               ))}

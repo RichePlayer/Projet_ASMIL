@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
     Download,
     Users,
+    Calendar,
     CreditCard,
     Activity,
     FileText,
@@ -145,6 +146,7 @@ export default function AdminDashboard() {
     const quickActions = [
         { icon: UserPlus, label: "Nouvel Utilisateur", action: () => navigate("/admin/users"), color: "blue" },
         { icon: BookOpen, label: "Nouvelle Formation", action: () => navigate("/admin/formations"), color: "emerald" },
+        { icon: Calendar, label: "Nouvelle Session", action: () => navigate("/admin/sessions"), color: "emerald" },
         { icon: ShieldCheck, label: "Voir Logs", action: () => navigate("/admin/logs"), color: "amber" },
     ];
     return (

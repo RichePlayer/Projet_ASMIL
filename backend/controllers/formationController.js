@@ -11,7 +11,8 @@ const createFormation = async (req, res) => {
             title,
             description,
             duration_months,
-            price,
+            tuition_fee,
+            registration_fee,
             type,
             image_url,
             prerequisites
@@ -23,7 +24,8 @@ const createFormation = async (req, res) => {
                 title,
                 description,
                 duration_months: duration_months ? parseInt(duration_months) : null,
-                price: parseFloat(price) || 0,
+                tuition_fee: parseFloat(tuition_fee) || 0,
+                registration_fee: parseFloat(registration_fee) || 0,
                 type,
                 image_url,
                 prerequisites
@@ -145,7 +147,8 @@ const updateFormation = async (req, res) => {
             title,
             description,
             duration_months,
-            price,
+            tuition_fee,
+            registration_fee,
             type,
             image_url,
             prerequisites
@@ -166,7 +169,8 @@ const updateFormation = async (req, res) => {
                 title,
                 description,
                 duration_months: duration_months !== undefined ? parseInt(duration_months) : undefined,
-                price: price !== undefined ? parseFloat(price) : undefined,
+                tuition_fee: tuition_fee !== undefined ? parseFloat(tuition_fee) : undefined,
+                registration_fee: registration_fee !== undefined ? parseFloat(registration_fee) : undefined,
                 type,
                 image_url,
                 prerequisites

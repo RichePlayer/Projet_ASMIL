@@ -39,9 +39,9 @@ const createStudent = async (req, res) => {
                 email,
                 phone_parent,
                 address,
+                address,
                 photo_url,
-                status: 'actif',
-                enrollment_date: new Date()
+                status: 'actif'
             }
         });
 
@@ -86,7 +86,11 @@ const getAllStudents = async (req, res) => {
                         include: {
                             session: {
                                 include: {
-                                    formation: true
+                                    module: {
+                                        include: {
+                                            formation: true
+                                        }
+                                    }
                                 }
                             }
                         }

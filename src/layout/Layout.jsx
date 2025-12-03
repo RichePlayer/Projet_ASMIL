@@ -49,7 +49,7 @@ const secretaryMenuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/secretary/dashboard" },
   { name: "Étudiants", icon: GraduationCap, path: "/secretary/students" },
   { name: "Inscriptions", icon: ClipboardCheck, path: "/secretary/enrollments" },
-  { name: "Paiements", icon: CreditCard, path: "/secretary/invoices" },
+  { name: "Paiements", icon: CreditCard, path: "/secretary/payments" },
   { name: "Notes", icon: FileText, path: "/secretary/grades" },
   { name: "Présences", icon: ClipboardCheck, path: "/secretary/attendance" },
   { name: "Certificats", icon: Award, path: "/secretary/certificates" },

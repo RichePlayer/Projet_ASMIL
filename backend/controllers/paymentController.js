@@ -126,7 +126,11 @@ const getAllPayments = async (req, res) => {
                                     student: true,
                                     session: {
                                         include: {
-                                            formation: true
+                                            module: {
+                                                include: {
+                                                    formation: true
+                                                }
+                                            }
                                         }
                                     }
                                 }

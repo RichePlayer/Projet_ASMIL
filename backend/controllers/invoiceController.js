@@ -47,7 +47,11 @@ const createInvoice = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true
+                                module: {
+                                    include: {
+                                        formation: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -97,7 +101,11 @@ const getAllInvoices = async (req, res) => {
                             student: true,
                             session: {
                                 include: {
-                                    formation: true
+                                    module: {
+                                        include: {
+                                            formation: true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -138,7 +146,11 @@ const getInvoiceById = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true,
+                                module: {
+                                    include: {
+                                        formation: true
+                                    }
+                                },
                                 teacher: true
                             }
                         }
@@ -285,7 +297,11 @@ const getOverdueInvoices = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true
+                                module: {
+                                    include: {
+                                        formation: true
+                                    }
+                                }
                             }
                         }
                     }

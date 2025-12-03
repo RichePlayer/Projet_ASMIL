@@ -25,18 +25,19 @@ model User {
 }
 
 model Formation {
-  id            Int           @id @default(autoincrement())
-  category      String?       @db.VarChar(100)
-  title         String        @db.VarChar(200)
-  description   String?       @db.Text
-  duration_months Int?
-  price         Decimal       @default(0) @db.Decimal(10, 2)
-  type          String?       @db.VarChar(50)
-  image_url     String?       @db.VarChar(255)
-  prerequisites String?       @db.Text
-  created_at    DateTime      @default(now())
-  modules       Module[]
-  certificates  Certificate[]
+  id               Int           @id @default(autoincrement())
+  category         String?       @db.VarChar(100)
+  title            String        @db.VarChar(200)
+  description      String?       @db.Text
+  duration_months  Int?
+  tuition_fee      Decimal       @default(0) @db.Decimal(10, 2) // Écolage
+  registration_fee Decimal       @default(0) @db.Decimal(10, 2) // Droit d'inscription
+  type             String?       @db.VarChar(50)
+  image_url        String?       @db.VarChar(255)
+  prerequisites    String?       @db.Text
+  created_at       DateTime      @default(now())
+  modules          Module[]
+  certificates     Certificate[]
 
   @@map("formations")
 }
@@ -104,7 +105,6 @@ model Student {
   phone_parent        String?       @db.VarChar(50)
   address             String?       @db.Text
   status              String?       @default("actif") @db.VarChar(20)
-  enrollment_date     DateTime?     @default(now()) @db.Date
   photo_url           String?       @db.VarChar(255)
   created_at          DateTime      @default(now())
   enrollments         Enrollment[]
@@ -114,19 +114,20 @@ model Student {
 }
 
 model Enrollment {
-  id          Int          @id @default(autoincrement())
-  student_id  Int?
-  student     Student?     @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  session_id  Int?
-  session     Session?     @relation(fields: [session_id], references: [id], onDelete: Cascade)
-  status      String?      @default("actif") @db.VarChar(20)
-  total_amount Decimal     @default(0) @db.Decimal(10, 2)
-  paid_amount  Decimal?    @default(0) @db.Decimal(10, 2)
-  notes       String?      @db.Text
-  created_at  DateTime     @default(now())
-  attendances Attendance[]
-  grades      Grade[]
-  invoices    Invoice[]
+  id              Int          @id @default(autoincrement())
+  student_id      Int?
+  student         Student?     @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  session_id      Int?
+  session         Session?     @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  status          String?      @default("actif") @db.VarChar(20)
+  enrollment_date DateTime?    @default(now()) @db.Date
+  total_amount    Decimal      @default(0) @db.Decimal(10, 2)
+  paid_amount     Decimal?     @default(0) @db.Decimal(10, 2)
+  notes           String?      @db.Text
+  created_at      DateTime     @default(now())
+  attendances     Attendance[]
+  grades          Grade[]
+  invoices        Invoice[]
 
   @@map("enrollments")
 }

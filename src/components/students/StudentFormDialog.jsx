@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { studentAPI } from "@/api/localDB"; // ⬅️ LOCAL DB
+import studentService from "@/services/studentService";
+import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
 import { Upload } from "lucide-react";
 
 export default function StudentFormDialog({ student, open, onClose }) {
@@ -33,7 +34,6 @@ export default function StudentFormDialog({ student, open, onClose }) {
     phone_parent: "",
     address: "",
     status: "actif",
-    enrollment_date: new Date().toISOString().split("T")[0],
     photo_url: "",
   });
 
@@ -47,48 +47,89 @@ export default function StudentFormDialog({ student, open, onClose }) {
         registration_number: student.registration_number || "",
         first_name: student.first_name || "",
         last_name: student.last_name || "",
-        date_of_birth: student.date_of_birth || "",
+        date_of_birth: student.date_of_birth ? new Date(student.date_of_birth).toISOString().split('T')[0] : "",
         gender: student.gender || "Homme",
         email: student.email || "",
         phone_parent: student.phone_parent || "",
         address: student.address || "",
         status: student.status || "actif",
-        enrollment_date: student.enrollment_date || "",
         photo_url: student.photo_url || "",
       });
     }
   }, [student]);
 
-  // 🔥 Mutation CREATE or UPDATE using localDB
+  // 🔥 Mutation CREATE or UPDATE using backend API
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      if (student) return studentAPI.update(student.id, data);
-      return studentAPI.create(data);
+      if (student) return studentService.update(student.id, data);
+      return studentService.create(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
-      toast.success(student ? "Étudiant modifié" : "Étudiant créé");
+      Swal.fire({
+        icon: 'success',
+        title: student ? 'Étudiant modifié !' : 'Étudiant créé !',
+        text: student ? 'L\'étudiant a été modifié avec succès.' : 'L\'étudiant a été créé avec succès.',
+        timer: 2000,
+        showConfirmButton: false
+      });
       onClose();
     },
+    onError: (error) => {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Une erreur est survenue lors de l\'enregistrement.',
+      });
+    }
   });
 
-  // 🔥 Convert uploaded image to Base64 (since no backend)
-  const handlePhotoUpload = (file) => {
+  // 🔥 Upload photo via backend API
+  const handlePhotoUpload = async (file) => {
     if (!file) return;
     setUploading(true);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, photo_url: reader.result });
-      toast.success("Photo ajoutée");
-      setUploading(false);
-    };
-    reader.onerror = () => {
-      toast.error("Erreur de lecture du fichier");
-      setUploading(false);
-    };
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    reader.readAsDataURL(file);
+      const response = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const { file_url } = response.data;
+
+      setFormData((prev) => ({
+        ...prev,
+        photo_url: file_url,
+      }));
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Photo ajoutée',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Erreur de téléchargement de la photo',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -148,17 +189,7 @@ export default function StudentFormDialog({ student, open, onClose }) {
               />
             </div>
 
-            <div>
-              <Label>Date d'Inscription :</Label>
-              <Input
-                type="date"
-                value={formData.enrollment_date}
-                onChange={(e) =>
-                  setFormData({ ...formData, enrollment_date: e.target.value })
-                }
-                required
-              />
-            </div>
+
 
             <div>
               <Label>Prénom :</Label>
@@ -195,7 +226,7 @@ export default function StudentFormDialog({ student, open, onClose }) {
             </div>
 
             <div>
-              <Label>Genre :</Label>
+              <Label>Sexe :</Label>
               <Select
                 value={formData.gender}
                 onValueChange={(value) =>
@@ -203,7 +234,7 @@ export default function StudentFormDialog({ student, open, onClose }) {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Sélectionner" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Homme">Homme</SelectItem>
@@ -225,13 +256,14 @@ export default function StudentFormDialog({ student, open, onClose }) {
             </div>
 
             <div>
-              <Label>N° Téléphone :</Label>
+              <Label>Téléphone :</Label>
               <Input
+                type="tel"
                 value={formData.phone_parent}
                 onChange={(e) =>
                   setFormData({ ...formData, phone_parent: e.target.value })
                 }
-                placeholder="+261 XX XXX XXX"
+                placeholder="034 00 000 00"
               />
             </div>
 

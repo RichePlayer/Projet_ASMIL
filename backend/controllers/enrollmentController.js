@@ -21,11 +21,16 @@ const createEnrollment = async (req, res) => {
             return res.status(404).json({ message: 'Étudiant non trouvé' });
         }
 
-        // Vérifier que la session existe
+        // Vérifier que la session existe avec les détails de formation pour le prix
         const session = await prisma.session.findUnique({
             where: { id: parseInt(session_id) },
             include: {
-                enrollments: true
+                enrollments: true,
+                module: {
+                    include: {
+                        formation: true
+                    }
+                }
             }
         });
         if (!session) {
@@ -48,20 +53,45 @@ const createEnrollment = async (req, res) => {
             return res.status(400).json({ message: 'L\'étudiant est déjà inscrit à cette session' });
         }
 
+        // Calculer le montant total si non fourni
+        let finalAmount = parseFloat(total_amount);
+        if (isNaN(finalAmount)) {
+            const tuition = parseFloat(session.module?.formation?.tuition_fee || 0);
+            const registration = parseFloat(session.module?.formation?.registration_fee || 0);
+            finalAmount = tuition + registration;
+        }
+
+        // Générer un numéro de facture unique
+        const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
         const enrollment = await prisma.enrollment.create({
             data: {
                 student_id: parseInt(student_id),
                 session_id: parseInt(session_id),
                 status: 'actif',
-                total_amount: parseFloat(total_amount) || 0,
+                enrollment_date: new Date(),
+                total_amount: finalAmount,
                 paid_amount: 0,
-                notes
+                notes,
+                invoices: {
+                    create: {
+                        invoice_number: invoiceNumber,
+                        amount: finalAmount,
+                        status: 'impayée',
+                        due_date: new Date(new Date().setDate(new Date().getDate() + 30)), // Échéance à 30 jours par défaut
+                        notes: 'Facture générée automatiquement à l\'inscription'
+                    }
+                }
             },
             include: {
                 student: true,
                 session: {
                     include: {
-                        formation: true,
+                        module: {
+                            include: {
+                                formation: true
+                            }
+                        },
                         teacher: true
                     }
                 }
@@ -101,7 +131,11 @@ const getAllEnrollments = async (req, res) => {
                     student: true,
                     session: {
                         include: {
-                            formation: true,
+                            module: {
+                                include: {
+                                    formation: true
+                                }
+                            },
                             teacher: true
                         }
                     },
@@ -145,9 +179,13 @@ const getEnrollmentById = async (req, res) => {
                 student: true,
                 session: {
                     include: {
-                        formation: {
+                        module: {
                             include: {
-                                modules: true
+                                formation: {
+                                    include: {
+                                        modules: true
+                                    }
+                                }
                             }
                         },
                         teacher: true
@@ -203,6 +241,7 @@ const updateEnrollment = async (req, res) => {
             where: { id: parseInt(id) },
             data: {
                 status,
+                enrollment_date: req.body.enrollment_date ? new Date(req.body.enrollment_date) : undefined,
                 total_amount: total_amount !== undefined ? parseFloat(total_amount) : undefined,
                 paid_amount: paid_amount !== undefined ? parseFloat(paid_amount) : undefined,
                 notes
@@ -211,7 +250,11 @@ const updateEnrollment = async (req, res) => {
                 student: true,
                 session: {
                     include: {
-                        formation: true
+                        module: {
+                            include: {
+                                formation: true
+                            }
+                        }
                     }
                 }
             }
@@ -266,7 +309,11 @@ const getEnrollmentBalance = async (req, res) => {
                 student: true,
                 session: {
                     include: {
-                        formation: true
+                        module: {
+                            include: {
+                                formation: true
+                            }
+                        }
                     }
                 },
                 invoices: {

@@ -34,7 +34,7 @@ router.get('/', authorizeRole(['Admin', 'Gestionnaire']), getAllPayments);
  * @access  Admin
  * @query   start_date, end_date
  */
-router.get('/stats', authorizeRole(['Admin']), getPaymentStats);
+router.get('/stats', authorizeRole(['Admin', 'Gestionnaire']), getPaymentStats);
 
 /**
  * @route   GET /api/payments/:id
@@ -55,6 +55,6 @@ router.put('/:id', authorizeRole(['Admin']), updatePayment);
  * @desc    Supprimer un paiement
  * @access  Admin
  */
-router.delete('/:id', authorizeRole(['Admin']), deletePayment);
+router.delete('/:id', authorizeRole(['Admin', 'Gestionnaire']), deletePayment);
 
 module.exports = router;

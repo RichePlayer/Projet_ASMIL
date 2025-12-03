@@ -368,11 +368,25 @@ export default function Formations() {
                     </div>
                   )}
 
-                  <div className="pt-3 border-t flex justify-between">
-                    <span className="text-sm text-slate-500">Tarif</span>
-                    <span className="text-xl font-bold text-red-600">
-                      {formation.price.toLocaleString()} Ar
-                    </span>
+                  <div className="pt-3 border-t space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Droit</span>
+                      <span className="font-semibold text-slate-700">
+                        {parseFloat(formation.registration_fee || 0).toLocaleString()} Ar
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Écolage</span>
+                      <span className="font-semibold text-slate-700">
+                        {parseFloat(formation.tuition_fee || 0).toLocaleString()} Ar
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-dashed">
+                      <span className="text-xs font-bold text-slate-400 uppercase">Total</span>
+                      <span className="font-bold text-red-600">
+                        {(parseFloat(formation.tuition_fee || 0) + parseFloat(formation.registration_fee || 0)).toLocaleString()} Ar
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

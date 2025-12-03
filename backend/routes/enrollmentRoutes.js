@@ -16,38 +16,38 @@ router.use(authenticateToken);
 /**
  * @route   POST /api/enrollments
  * @desc    Créer une nouvelle inscription
- * @access  Admin, Gestionnaire
+ * @access  Admin, Gestionnaire, Secretary
  */
-router.post('/', authorizeRole(['Admin', 'Gestionnaire']), createEnrollment);
+router.post('/', authorizeRole(['Admin', 'Gestionnaire', 'Secretary']), createEnrollment);
 
 /**
  * @route   GET /api/enrollments
  * @desc    Obtenir toutes les inscriptions avec filtres
- * @access  Admin, Gestionnaire
+ * @access  Admin, Gestionnaire, Secretary
  * @query   page, limit, student_id, session_id, status
  */
-router.get('/', authorizeRole(['Admin', 'Gestionnaire']), getAllEnrollments);
+router.get('/', authorizeRole(['Admin', 'Gestionnaire', 'Secretary']), getAllEnrollments);
 
 /**
  * @route   GET /api/enrollments/:id
  * @desc    Obtenir une inscription par ID
- * @access  Admin, Gestionnaire
+ * @access  Admin, Gestionnaire, Secretary
  */
-router.get('/:id', authorizeRole(['Admin', 'Gestionnaire']), getEnrollmentById);
+router.get('/:id', authorizeRole(['Admin', 'Gestionnaire', 'Secretary']), getEnrollmentById);
 
 /**
  * @route   GET /api/enrollments/:id/balance
  * @desc    Obtenir le solde d'une inscription
- * @access  Admin, Gestionnaire
+ * @access  Admin, Gestionnaire, Secretary
  */
-router.get('/:id/balance', authorizeRole(['Admin', 'Gestionnaire']), getEnrollmentBalance);
+router.get('/:id/balance', authorizeRole(['Admin', 'Gestionnaire', 'Secretary']), getEnrollmentBalance);
 
 /**
  * @route   PUT /api/enrollments/:id
  * @desc    Mettre à jour une inscription
- * @access  Admin, Gestionnaire
+ * @access  Admin, Gestionnaire, Secretary
  */
-router.put('/:id', authorizeRole(['Admin', 'Gestionnaire']), updateEnrollment);
+router.put('/:id', authorizeRole(['Admin', 'Gestionnaire', 'Secretary']), updateEnrollment);
 
 /**
  * @route   DELETE /api/enrollments/:id
