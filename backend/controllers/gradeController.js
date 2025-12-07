@@ -40,7 +40,7 @@ const createGrade = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true
+                                module: true
                             }
                         }
                     }
@@ -88,7 +88,12 @@ const getAllGrades = async (req, res) => {
                             student: true,
                             session: {
                                 include: {
-                                    formation: true
+                                    module: {
+                                        include: {
+                                            formation: true
+                                        }
+                                    },
+                                    teacher: true
                                 }
                             }
                         }
@@ -128,7 +133,11 @@ const getGradeById = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true,
+                                module: {
+                                    include: {
+                                        formation: true
+                                    }
+                                },
                                 teacher: true
                             }
                         }
@@ -239,7 +248,12 @@ const calculateEnrollmentAverage = async (req, res) => {
                 student: true,
                 session: {
                     include: {
-                        formation: true
+                        module: {
+                            include: {
+                                formation: true
+                            }
+                        },
+                        teacher: true
                     }
                 },
                 grades: true
@@ -306,9 +320,9 @@ const getStudentReport = async (req, res) => {
                 student: true,
                 session: {
                     include: {
-                        formation: {
+                        module: {
                             include: {
-                                modules: true
+                                formation: true
                             }
                         },
                         teacher: true

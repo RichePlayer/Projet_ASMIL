@@ -3,27 +3,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import moduleService from "@/services/moduleService";
 import formationService from "@/services/formationService";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
     Card, CardContent
 } from "@/components/ui/card";
-import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, BookOpen, Edit, Trash2, Clock, MoreVertical } from "lucide-react";
+import { Plus, BookOpen, Edit, Trash2, MoreVertical, Loader2 } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import DataTable from "@/components/ui/data-table";
 import ModuleFormDialog from "@/components/modules/ModuleFormDialog";
 import { toast } from "sonner";
 import Swal from 'sweetalert2';
 
 export default function Modules() {
-    const [searchQuery, setSearchQuery] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [editingModule, setEditingModule] = useState(null);
     const [viewModule, setViewModule] = useState(null);
@@ -60,9 +56,7 @@ export default function Modules() {
         }
     });
 
-    const filteredModules = modules.filter((mod) =>
-        mod.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredModules = modules;
 
     const getFormationName = (module) => {
         // API returns formation object with title
@@ -119,58 +113,59 @@ export default function Modules() {
                 </Card>
             </div>
 
-            {/* Search */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input
-                    className="pl-10"
-                    placeholder="Rechercher un module..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-            </div>
-
             {/* Table */}
             <Card className="shadow-lg border-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="bg-slate-50">
-                            <TableHead>Titre</TableHead>
-                            <TableHead>Formation</TableHead>
-                            <TableHead>Heures</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center py-8">
-                                    Chargement...
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredModules.map((mod) => (
-                                <TableRow key={mod.id}>
-                                    <TableCell className="font-medium">{mod.title}</TableCell>
-                                    <TableCell>
+                <CardContent className="p-6">
+                    {isLoading ? (
+                        <div className="flex justify-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+                        </div>
+                    ) : (
+                        <DataTable
+                            data={filteredModules}
+                            columns={[
+                                {
+                                    key: 'title',
+                                    label: 'Titre',
+                                    sortable: true,
+                                },
+                                {
+                                    key: 'formation',
+                                    label: 'Formation',
+                                    sortable: true,
+                                    render: (mod) => (
                                         <Badge variant="outline" className="bg-red-50">
                                             {getFormationName(mod)}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell>{mod.hours}h</TableCell>
-                                    <TableCell className="max-w-xs truncate">{mod.description}</TableCell>
-                                    <TableCell className="text-right">
+                                    ),
+                                },
+                                {
+                                    key: 'hours',
+                                    label: 'Heures',
+                                    sortable: true,
+                                    render: (mod) => `${mod.hours}h`,
+                                },
+                                {
+                                    key: 'description',
+                                    label: 'Description',
+                                    sortable: false,
+                                    render: (mod) => (
+                                        <span className="max-w-xs truncate block">{mod.description}</span>
+                                    ),
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    sortable: false,
+                                    searchable: false,
+                                    render: (mod) => (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="sm">
                                                     <MoreVertical className="h-5 w-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-
                                             <DropdownMenuContent align="end" className="w-40">
-
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         setEditingModule(mod);
@@ -181,7 +176,6 @@ export default function Modules() {
                                                     <Edit className="h-4 w-4" />
                                                     Modifier
                                                 </DropdownMenuItem>
-
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         Swal.fire({
@@ -204,16 +198,17 @@ export default function Modules() {
                                                     <Trash2 className="h-4 w-4" />
                                                     Supprimer
                                                 </DropdownMenuItem>
-
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </TableCell>
-
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                                    ),
+                                },
+                            ]}
+                            searchable={true}
+                            defaultPageSize={10}
+                            pageSizeOptions={[10, 25, 50, 100]}
+                        />
+                    )}
+                </CardContent>
             </Card>
 
             {/* Dialogs */}

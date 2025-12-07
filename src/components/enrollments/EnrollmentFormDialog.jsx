@@ -41,6 +41,7 @@ export default function EnrollmentFormDialog({
     student_id: "",
     session_id: "",
     status: "actif",
+    enrollment_date: new Date().toISOString().split('T')[0],
     paid_amount: 0,
     total_amount: 0,
     notes: "",

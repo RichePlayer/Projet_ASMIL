@@ -1,7 +1,13 @@
 import api from './api';
 
 export const sessionService = {
-    // Get all sessions
+    // Get all sessions with pagination
+    async getAllSessions(params = {}) {
+        const response = await api.get('/sessions', { params });
+        return response.data;
+    },
+
+    // Get all sessions (legacy method)
     async getAll() {
         const response = await api.get('/sessions');
         return response.data.sessions || response.data;

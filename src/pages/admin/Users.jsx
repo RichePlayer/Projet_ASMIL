@@ -19,21 +19,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useAuditLog } from "@/hooks/useAuditLog";
 import { LOG_ACTIONS } from "@/utils/auditLog";
-import api from "@/services/api"; // Import de l'API réelle
+import api from "@/services/api";
+import DataTable from "@/components/ui/data-table";
 import {
     UserPlus,
-    Search,
     MoreVertical,
     Edit,
     Trash2,
@@ -51,14 +43,13 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner"; // Pour les notifications
+import { toast } from "sonner";
 import Swal from 'sweetalert2';
 
 export default function Users() {
     const { log } = useAuditLog();
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -96,13 +87,11 @@ export default function Users() {
         fetchUsers();
     }, []);
 
-    // Filter users
+    // Filter users by role and status (search is handled by DataTable)
     const filteredUsers = users.filter(user => {
-        const matchesSearch = (user.full_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-            (user.email?.toLowerCase() || "").includes(searchTerm.toLowerCase());
         const matchesRole = roleFilter === "all" || user.role === roleFilter;
         const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-        return matchesSearch && matchesRole && matchesStatus;
+        return matchesRole && matchesStatus;
     });
 
     // Role badge colors
@@ -324,26 +313,13 @@ export default function Users() {
                 </Button>
             </div>
 
-            {/* Filters & Search */}
+            {/* Filters */}
             <Card className="border-none shadow-md">
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {/* Search */}
-                        <div className="md:col-span-2">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                <Input
-                                    placeholder="Rechercher par nom ou email..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10"
-                                />
-                            </div>
-                        </div>
-
+                    <div className="flex flex-wrap gap-4">
                         {/* Role Filter */}
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-48">
                                 <SelectValue placeholder="Filtrer par rôle" />
                             </SelectTrigger>
                             <SelectContent>
@@ -355,7 +331,7 @@ export default function Users() {
 
                         {/* Status Filter */}
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-48">
                                 <SelectValue placeholder="Filtrer par statut" />
                             </SelectTrigger>
                             <SelectContent>
@@ -370,11 +346,9 @@ export default function Users() {
 
             {/* Users Table */}
             <Card className="border-none shadow-md">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Utilisateurs ({filteredUsers.length})</CardTitle>
-                        <CardDescription>Liste complète des utilisateurs du système</CardDescription>
-                    </div>
+                <CardHeader>
+                    <CardTitle>Utilisateurs ({filteredUsers.length})</CardTitle>
+                    <CardDescription>Liste complète des utilisateurs du système</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -382,75 +356,86 @@ export default function Users() {
                             <Loader2 className="h-8 w-8 animate-spin text-red-600" />
                         </div>
                     ) : (
-                        <div className="rounded-lg border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Nom</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead>Rôle</TableHead>
-                                        <TableHead>Statut</TableHead>
-                                        <TableHead>Dernière connexion</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredUsers.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                                                Aucun utilisateur trouvé.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        filteredUsers.map((user) => (
-                                            <TableRow key={user.id}>
-                                                <TableCell className="font-medium">{user.full_name}</TableCell>
-                                                <TableCell className="text-slate-600">{user.email}</TableCell>
-                                                <TableCell>{getRoleBadge(user.role)}</TableCell>
-                                                <TableCell>{getStatusBadge(user.status)}</TableCell>
-                                                <TableCell className="text-slate-600 text-sm">
-                                                    {user.last_login ? new Date(user.last_login).toLocaleString('fr-FR') : "Jamais"}
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm">
-                                                                <MoreVertical className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => openEditDialog(user)}>
-                                                                <Edit className="h-4 w-4 mr-2" />
-                                                                Modifier
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleToggleStatus(user)}>
-                                                                {user.status === "active" ? (
-                                                                    <><PowerOff className="h-4 w-4 mr-2" />Désactiver</>
-                                                                ) : (
-                                                                    <><Power className="h-4 w-4 mr-2" />Activer</>
-                                                                )}
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleResetPassword(user)}>
-                                                                <Key className="h-4 w-4 mr-2" />
-                                                                Réinitialiser mot de passe
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                onClick={() => handleDeleteUser(user)}
-                                                                className="text-red-600 focus:text-red-700"
-                                                            >
-                                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                                Supprimer
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
+                        <DataTable
+                            data={filteredUsers}
+                            columns={[
+                                {
+                                    key: 'full_name',
+                                    label: 'Nom',
+                                    sortable: true,
+                                },
+                                {
+                                    key: 'email',
+                                    label: 'Email',
+                                    sortable: true,
+                                },
+                                {
+                                    key: 'role',
+                                    label: 'Rôle',
+                                    sortable: true,
+                                    render: (user) => getRoleBadge(user.role),
+                                },
+                                {
+                                    key: 'status',
+                                    label: 'Statut',
+                                    sortable: true,
+                                    render: (user) => getStatusBadge(user.status),
+                                },
+                                {
+                                    key: 'last_login',
+                                    label: 'Dernière connexion',
+                                    sortable: true,
+                                    render: (user) => (
+                                        <span className="text-sm">
+                                            {user.last_login ? new Date(user.last_login).toLocaleString('fr-FR') : "Jamais"}
+                                        </span>
+                                    ),
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    sortable: false,
+                                    searchable: false,
+                                    render: (user) => (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="sm">
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                                                    <Edit className="h-4 w-4 mr-2" />
+                                                    Modifier
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleToggleStatus(user)}>
+                                                    {user.status === "active" ? (
+                                                        <><PowerOff className="h-4 w-4 mr-2" />Désactiver</>
+                                                    ) : (
+                                                        <><Power className="h-4 w-4 mr-2" />Activer</>
+                                                    )}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleResetPassword(user)}>
+                                                    <Key className="h-4 w-4 mr-2" />
+                                                    Réinitialiser mot de passe
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    onClick={() => handleDeleteUser(user)}
+                                                    className="text-red-600 focus:text-red-700"
+                                                >
+                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    Supprimer
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    ),
+                                },
+                            ]}
+                            searchable={true}
+                            defaultPageSize={10}
+                            pageSizeOptions={[10, 25, 50, 100]}
+                        />
                     )}
                 </CardContent>
             </Card>

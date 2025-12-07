@@ -10,6 +10,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
     Eye,
     CreditCard,
     Calendar,
@@ -20,9 +28,12 @@ import {
     Wallet,
     Hash,
     MessageSquare,
+    Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { generatePaymentReceipt } from "@/utils/pdfUtils";
+
 
 export default function PaymentDetailsDialog({ payment, open, onClose }) {
     if (!payment) return null;
@@ -235,6 +246,62 @@ export default function PaymentDetailsDialog({ payment, open, onClose }) {
                             </Card>
                         </div>
 
+                        {/* Historique des Paiements */}
+                        {payment.invoice?.payments && payment.invoice.payments.length > 1 && (
+                            <Card className="p-4 border-red-100 bg-gradient-to-br from-red-50/30 to-orange-50/30">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-red-100 rounded-lg">
+                                        <FileText className="h-5 w-5 text-red-600" />
+                                    </div>
+                                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                                        Historique des Paiements
+                                    </h3>
+                                </div>
+
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-slate-50">
+                                            <TableHead className="font-bold">Date</TableHead>
+                                            <TableHead className="font-bold">Montant</TableHead>
+                                            <TableHead className="font-bold">Mode</TableHead>
+                                            <TableHead className="font-bold">Référence</TableHead>
+                                            <TableHead className="font-bold text-center">Actuel</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {payment.invoice.payments
+                                            .sort((a, b) => new Date(b.payment_date || b.created_at) - new Date(a.payment_date || a.created_at))
+                                            .map((p) => (
+                                                <TableRow
+                                                    key={p.id}
+                                                    className={p.id === payment.id ? "bg-green-50 font-semibold" : ""}
+                                                >
+                                                    <TableCell>
+                                                        {format(new Date(p.payment_date || p.created_at), "dd MMM yyyy", { locale: fr })}
+                                                    </TableCell>
+                                                    <TableCell className="font-bold">
+                                                        {parseFloat(p.amount).toLocaleString()} Ar
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {p.method || "N/A"}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="font-mono text-xs">
+                                                        {p.transaction_reference || "-"}
+                                                    </TableCell>
+                                                    <TableCell className="text-center">
+                                                        {p.id === payment.id && (
+                                                            <Badge className="bg-green-600 text-white">✓</Badge>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                    </TableBody>
+                                </Table>
+                            </Card>
+                        )}
+
                         {/* Notes */}
                         {payment.notes && (
                             <Card className="p-4 border-red-100 bg-red-50/50">
@@ -261,7 +328,15 @@ export default function PaymentDetailsDialog({ payment, open, onClose }) {
                     </div>
                 </div>
 
-                <div className="p-6 border-t bg-gradient-to-r from-red-50 to-orange-50 flex justify-end">
+                <div className="p-6 border-t bg-gradient-to-r from-red-50 to-orange-50 flex justify-between items-center gap-4">
+                    <Button
+                        onClick={() => generatePaymentReceipt(payment)}
+                        variant="outline"
+                        className="border-red-300 hover:bg-red-100 text-red-700 font-semibold"
+                    >
+                        <Download className="h-4 w-4 mr-2" />
+                        Exporter en PDF
+                    </Button>
                     <Button
                         onClick={onClose}
                         className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30"

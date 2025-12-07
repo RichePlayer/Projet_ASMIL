@@ -249,12 +249,11 @@ const deleteTeacher = async (req, res) => {
             return res.status(404).json({ message: 'Enseignant non trouvé' });
         }
 
-        // Vérifier s'il a des sessions actives
-        const activeSessions = teacher.sessions.filter(s => s.status === 'planifiée' || s.status === 'en cours');
-        if (activeSessions.length > 0) {
-            return res.status(400).json({
-                message: 'Impossible de supprimer un enseignant avec des sessions actives',
-                activeSessions: activeSessions.length
+        // Si l'enseignant a des sessions, mettre teacher_id à null au lieu de bloquer
+        if (teacher.sessions.length > 0) {
+            await prisma.session.updateMany({
+                where: { teacher_id: parseInt(id) },
+                data: { teacher_id: null }
             });
         }
 
@@ -262,7 +261,10 @@ const deleteTeacher = async (req, res) => {
             where: { id: parseInt(id) }
         });
 
-        res.json({ message: 'Enseignant supprimé avec succès' });
+        res.json({
+            message: 'Enseignant supprimé avec succès',
+            sessionsUpdated: teacher.sessions.length
+        });
     } catch (error) {
         console.error('Erreur suppression enseignant:', error);
         res.status(500).json({ message: 'Échec de la suppression de l\'enseignant', error: error.message });

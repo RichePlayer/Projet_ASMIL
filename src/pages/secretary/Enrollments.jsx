@@ -7,7 +7,6 @@ import sessionService from "@/services/sessionService";
 import moduleService from "@/services/moduleService";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,15 +17,8 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
-import { Plus, Search, UserCheck, Edit, Trash2, MoreVertical, } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Plus, UserCheck, Edit, Trash2, MoreVertical, Loader2 } from "lucide-react";
+import DataTable from "@/components/ui/data-table";
 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -35,7 +27,6 @@ import EnrollmentFormDialog from "@/components/enrollments/EnrollmentFormDialog"
 import Swal from 'sweetalert2';
 
 export default function Enrollments() {
-  const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingEnrollment, setEditingEnrollment] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -95,19 +86,9 @@ export default function Enrollments() {
   // FILTERS
   // ============================
   const filteredEnrollments = enrollments.filter((enrollment) => {
-    const student = students.find((s) => s.id === enrollment.student_id);
-    const studentName = student
-      ? `${student.first_name} ${student.last_name}`
-      : "";
-
-    const matchesSearch = studentName
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
     const matchesStatus =
       statusFilter === "all" || enrollment.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   // ============================
@@ -135,6 +116,12 @@ export default function Enrollments() {
 
     const mod = modules.find((m) => m.id === ses.module_id);
     return mod ? mod.title : `Session ${id}`;
+  };
+
+  // Format number to avoid "000" display for 0
+  const formatAmount = (amount) => {
+    if (amount === 0 || amount === null || amount === undefined) return '0';
+    return new Intl.NumberFormat('fr-FR').format(amount);
   };
 
   const totalActive = enrollments.filter((e) => e.status === "actif").length;
@@ -202,7 +189,7 @@ export default function Enrollments() {
                   Revenus Encaissés
                 </p>
                 <h3 className="text-3xl font-bold text-blue-900 mt-2">
-                  {totalRevenue.toLocaleString()} Ar
+                  {formatAmount(totalRevenue)} Ar
                 </h3>
               </div>
               <div className="p-3 rounded-xl bg-blue-600 shadow-lg">
@@ -220,7 +207,7 @@ export default function Enrollments() {
                   Reste à Payer
                 </p>
                 <h3 className="text-3xl font-bold text-red-900 mt-2">
-                  {totalPending.toLocaleString()} Ar
+                  {formatAmount(totalPending)} Ar
                 </h3>
               </div>
               <div className="p-3 rounded-xl bg-red-600 shadow-lg">
@@ -232,146 +219,129 @@ export default function Enrollments() {
       </div>
 
       {/* SEARCH + FILTER */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder="Rechercher un étudiant..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        <div className="flex gap-2">
-          {["all", "en attente", "actif", "terminé", "annulé"].map(
-            (status) => (
-              <Button
-                key={status}
-                variant={statusFilter === status ? "default" : "outline"}
-                onClick={() => setStatusFilter(status)}
-                className={
-                  statusFilter === status
-                    ? "bg-red-600 hover:bg-red-700"
-                    : ""
-                }
-                size="sm"
-              >
-                {status === "all"
-                  ? "Tous"
-                  : status.charAt(0).toUpperCase() + status.slice(1)}
-              </Button>
-            )
-          )}
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {["all", "en attente", "actif", "terminé", "annulé"].map(
+          (status) => (
+            <Button
+              key={status}
+              variant={statusFilter === status ? "default" : "outline"}
+              onClick={() => setStatusFilter(status)}
+              className={
+                statusFilter === status
+                  ? "bg-red-600 hover:bg-red-700"
+                  : ""
+              }
+              size="sm"
+            >
+              {status === "all"
+                ? "Tous"
+                : status.charAt(0).toUpperCase() + status.slice(1)}
+            </Button>
+          )
+        )}
       </div>
 
       {/* TABLE */}
       <Card className="shadow-lg border-0">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50">
-              <TableHead className="font-bold">Étudiant</TableHead>
-              <TableHead className="font-bold">Session / Module</TableHead>
-              <TableHead className="font-bold">Date</TableHead>
-              <TableHead className="font-bold">Statut</TableHead>
-              <TableHead className="font-bold text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  Chargement...
-                </TableCell>
-              </TableRow>
-            ) : filteredEnrollments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  Aucune inscription trouvée
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredEnrollments.map((e) => {
-                return (
-                  <TableRow key={e.id}>
-                    <TableCell className="font-semibold">
-                      {getStudentName(e.student_id)}
-                    </TableCell>
-
-                    <TableCell>{getSessionInfo(e.session_id)}</TableCell>
-
-                    <TableCell>
-                      {e.enrollment_date
-                        ? format(new Date(e.enrollment_date), "d MMM yyyy", {
-                          locale: fr,
-                        })
-                        : "-"}
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={`${getStatusColor(e.status)} border`}
-                      >
-                        {e.status}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setEditingEnrollment(e);
-                              setShowForm(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-
-                          <DropdownMenuSeparator />
-
-                          <DropdownMenuItem
-                            className="text-red-600 focus:text-red-700"
-                            onClick={() => {
-                              Swal.fire({
-                                title: 'Êtes-vous sûr ?',
-                                text: "Voulez-vous vraiment supprimer cette inscription ?",
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#d33',
-                                cancelButtonColor: '#3085d6',
-                                confirmButtonText: 'Oui, supprimer',
-                                cancelButtonText: 'Annuler'
-                              }).then((result) => {
-                                if (result.isConfirmed) {
-                                  deleteEnrollmentMutation.mutate(e.id);
-                                }
-                              });
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+        <CardContent className="p-6">
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+            </div>
+          ) : (
+            <DataTable
+              data={filteredEnrollments}
+              columns={[
+                {
+                  key: 'student',
+                  label: 'Étudiant',
+                  sortable: true,
+                  render: (e) => getStudentName(e.student_id),
+                },
+                {
+                  key: 'session',
+                  label: 'Session / Module',
+                  sortable: true,
+                  render: (e) => getSessionInfo(e.session_id),
+                },
+                {
+                  key: 'enrollment_date',
+                  label: 'Date',
+                  sortable: true,
+                  render: (e) =>
+                    e.enrollment_date
+                      ? format(new Date(e.enrollment_date), "d MMM yyyy", { locale: fr })
+                      : "-",
+                },
+                {
+                  key: 'status',
+                  label: 'Statut',
+                  sortable: true,
+                  render: (e) => (
+                    <Badge
+                      variant="outline"
+                      className={`${getStatusColor(e.status)} border`}
+                    >
+                      {e.status}
+                    </Badge>
+                  ),
+                },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  sortable: false,
+                  searchable: false,
+                  render: (e) => (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditingEnrollment(e);
+                            setShowForm(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-600 focus:text-red-700"
+                          onClick={() => {
+                            Swal.fire({
+                              title: 'Êtes-vous sûr ?',
+                              text: "Voulez-vous vraiment supprimer cette inscription ?",
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonColor: '#d33',
+                              cancelButtonColor: '#3085d6',
+                              confirmButtonText: 'Oui, supprimer',
+                              cancelButtonText: 'Annuler'
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                deleteEnrollmentMutation.mutate(e.id);
+                              }
+                            });
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ),
+                },
+              ]}
+              searchable={true}
+              defaultPageSize={10}
+              pageSizeOptions={[10, 25, 50, 100]}
+            />
+          )}
+        </CardContent>
       </Card>
 
       {/* FORM */}

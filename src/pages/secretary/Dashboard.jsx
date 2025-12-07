@@ -26,10 +26,16 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
-  const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: () => invoiceAPI.list("-created_date", 1000) });
-  const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: () => paymentAPI.list("-created_date", 1000) });
-  const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: () => enrollmentAPI.list() });
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => studentAPI.list() });
+  const { data: invoicesData } = useQuery({ queryKey: ["invoices"], queryFn: () => invoiceAPI.list("-created_date", 1000) });
+  const { data: paymentsData } = useQuery({ queryKey: ["payments"], queryFn: () => paymentAPI.list("-created_date", 1000) });
+  const { data: enrollmentsData } = useQuery({ queryKey: ["enrollments"], queryFn: () => enrollmentAPI.list() });
+  const { data: studentsData } = useQuery({ queryKey: ["students"], queryFn: () => studentAPI.list() });
+
+  // Ensure all data is always an array
+  const invoices = Array.isArray(invoicesData) ? invoicesData : [];
+  const payments = Array.isArray(paymentsData) ? paymentsData : [];
+  const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : [];
+  const students = Array.isArray(studentsData) ? studentsData : [];
 
   // KPIs
   const totalRevenue = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);

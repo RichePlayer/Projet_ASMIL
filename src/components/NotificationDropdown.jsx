@@ -24,25 +24,31 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function NotificationDropdown() {
-    const { data: invoices = [] } = useQuery({
+    const { data: invoicesData } = useQuery({
         queryKey: ["invoices"],
         queryFn: () => invoiceAPI.list("-created_date", 1000),
     });
 
-    const { data: payments = [] } = useQuery({
+    const { data: paymentsData } = useQuery({
         queryKey: ["payments"],
         queryFn: () => paymentAPI.list("-created_date", 1000),
     });
 
-    const { data: enrollments = [] } = useQuery({
+    const { data: enrollmentsData } = useQuery({
         queryKey: ["enrollments"],
         queryFn: () => enrollmentAPI.list(),
     });
 
-    const { data: students = [] } = useQuery({
+    const { data: studentsData } = useQuery({
         queryKey: ["students"],
         queryFn: () => studentAPI.list(),
     });
+
+    // Ensure all data is always an array
+    const invoices = Array.isArray(invoicesData) ? invoicesData : [];
+    const payments = Array.isArray(paymentsData) ? paymentsData : [];
+    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : [];
+    const students = Array.isArray(studentsData) ? studentsData : [];
 
     // Calculate notifications
     const notifications = useMemo(() => {

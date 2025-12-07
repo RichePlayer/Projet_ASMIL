@@ -2,11 +2,11 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Users, MapPin, Edit, Trash2 } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, Edit, Trash2, GraduationCap } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export default function SessionCard({ session, moduleName, formationName, onEdit, onDelete }) {
+export default function SessionCard({ session, moduleName, formationName, teacher, onEdit, onDelete }) {
   const getStatusColor = (status) => {
     const colors = {
       "à venir": "bg-blue-100 text-blue-800 border-blue-200",
@@ -54,6 +54,23 @@ export default function SessionCard({ session, moduleName, formationName, onEdit
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Users className="h-4 w-4 text-red-600" />
             <span>Capacité: {session.capacity} places</span>
+          </div>
+        )}
+        {teacher && (
+          <div className="flex items-start gap-2 text-sm text-slate-600">
+            <GraduationCap className="h-4 w-4 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <span className="font-medium">{teacher.first_name} {teacher.last_name}</span>
+              {teacher.specialties && teacher.specialties.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {teacher.specialties.map((spec, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs bg-slate-50 text-slate-700">
+                      {spec}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
         {session.schedule && session.schedule.length > 0 && (

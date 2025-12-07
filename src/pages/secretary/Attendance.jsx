@@ -29,32 +29,39 @@ export default function Attendance() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStudent, setSelectedStudent] = useState(null);
 
-    const { data: sessions = [] } = useQuery({
+    const { data: sessionsData } = useQuery({
         queryKey: ["sessions"],
         queryFn: () => sessionAPI.list("-created_date", 1000),
     });
 
-    const { data: enrollments = [] } = useQuery({
+    const { data: enrollmentsData } = useQuery({
         queryKey: ["enrollments", selectedSession],
         queryFn: () =>
             selectedSession ? enrollmentAPI.filter({ session_id: selectedSession }) : Promise.resolve([]),
         enabled: !!selectedSession,
     });
 
-    const { data: students = [] } = useQuery({
+    const { data: studentsData } = useQuery({
         queryKey: ["students"],
         queryFn: () => studentAPI.list(),
     });
 
-    const { data: attendances = [] } = useQuery({
+    const { data: attendancesData } = useQuery({
         queryKey: ["attendances"],
         queryFn: () => attendanceAPI.list("-date", 500),
     });
 
-    const { data: modules = [] } = useQuery({
+    const { data: modulesData } = useQuery({
         queryKey: ["modules"],
         queryFn: () => moduleAPI.list(),
     });
+
+    // Ensure all data is always an array
+    const sessions = Array.isArray(sessionsData) ? sessionsData : [];
+    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : [];
+    const students = Array.isArray(studentsData) ? studentsData : [];
+    const attendances = Array.isArray(attendancesData) ? attendancesData : [];
+    const modules = Array.isArray(modulesData) ? modulesData : [];
 
     const activeSessions = sessions.filter((s) => s.status === "en cours");
 

@@ -71,6 +71,11 @@ export default function Sessions() {
     return module?.formation?.title || "";
   };
 
+  const getTeacher = (teacherId) => {
+    if (!teacherId) return null;
+    return teachers.find((t) => t.id === teacherId) || null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -140,6 +145,7 @@ export default function Sessions() {
                   session={session}
                   moduleName={getModuleName(session.module_id)}
                   formationName={getFormationName(session.module_id)}
+                  teacher={getTeacher(session.teacher_id)}
                   onEdit={() => {
                     setEditingSession(session);
                     setShowForm(true);

@@ -54,7 +54,8 @@ export default function Formations() {
     "Entrepreneuriat",
     "Leadership",
     "Management d'entreprise",
-    "Management des projets"
+    "Management des projets",
+    "Autre"
   ];
 
   // Note: Les modules sont souvent chargés avec les formations ou via un endpoint spécifique

@@ -152,7 +152,14 @@ export default function SessionFormDialog({ session, modules = [], teachers = []
                   {teachers && teachers.length > 0 ? (
                     teachers.map((teacher) => (
                       <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                        {teacher.first_name} {teacher.last_name}
+                        <div className="flex flex-col">
+                          <span>{teacher.first_name} {teacher.last_name}</span>
+                          {teacher.specialties && teacher.specialties.length > 0 && (
+                            <span className="text-xs text-slate-500">
+                              {teacher.specialties.join(", ")}
+                            </span>
+                          )}
+                        </div>
                       </SelectItem>
                     ))
                   ) : (

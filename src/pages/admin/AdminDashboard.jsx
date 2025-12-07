@@ -34,11 +34,54 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { data: invoices = [] } = useQuery({ queryKey: ["invoices"], queryFn: async () => (await api.get('/invoices?limit=1000')).data });
-    const { data: payments = [] } = useQuery({ queryKey: ["payments"], queryFn: async () => (await api.get('/payments?limit=1000')).data });
-    const { data: enrollments = [] } = useQuery({ queryKey: ["enrollments"], queryFn: async () => (await api.get('/enrollments?limit=1000')).data });
-    const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: async () => (await api.get('/students?limit=1000')).data });
-    const { data: teachers = [] } = useQuery({ queryKey: ["teachers"], queryFn: async () => (await api.get('/teachers?limit=1000')).data });
+
+    // Fetch data with proper extraction
+    const { data: invoicesData } = useQuery({
+        queryKey: ["invoices"],
+        queryFn: async () => {
+            const response = await api.get('/invoices?limit=1000');
+            return response.data.invoices || response.data || [];
+        }
+    });
+
+    const { data: paymentsData } = useQuery({
+        queryKey: ["payments"],
+        queryFn: async () => {
+            const response = await api.get('/payments?limit=1000');
+            return response.data.payments || response.data || [];
+        }
+    });
+
+    const { data: enrollmentsData } = useQuery({
+        queryKey: ["enrollments"],
+        queryFn: async () => {
+            const response = await api.get('/enrollments?limit=1000');
+            return response.data.enrollments || response.data || [];
+        }
+    });
+
+    const { data: studentsData } = useQuery({
+        queryKey: ["students"],
+        queryFn: async () => {
+            const response = await api.get('/students?limit=1000');
+            return response.data.students || response.data || [];
+        }
+    });
+
+    const { data: teachersData } = useQuery({
+        queryKey: ["teachers"],
+        queryFn: async () => {
+            const response = await api.get('/teachers?limit=1000');
+            return response.data.teachers || response.data || [];
+        }
+    });
+
+    // Ensure all data is always an array
+    const invoices = Array.isArray(invoicesData) ? invoicesData : [];
+    const payments = Array.isArray(paymentsData) ? paymentsData : [];
+    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : [];
+    const students = Array.isArray(studentsData) ? studentsData : [];
+    const teachers = Array.isArray(teachersData) ? teachersData : [];
 
     // ========== ADVANCED KPIs ==========
 

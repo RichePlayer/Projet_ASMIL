@@ -2,17 +2,8 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import paymentService from "@/services/paymentService";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -22,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
     CreditCard,
-    Search,
     DollarSign,
     TrendingUp,
     Plus,
@@ -30,16 +20,20 @@ import {
     Trash2,
     Eye,
     MoreVertical,
+    Download,
+    Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import Swal from "sweetalert2";
+import DataTable from "@/components/ui/data-table";
 import PaymentFormDialog from "@/components/payments/PaymentFormDialog";
 import PaymentEditDialog from "@/components/payments/PaymentEditDialog";
 import PaymentDetailsDialog from "@/components/payments/PaymentDetailsDialog";
+import { generatePaymentReceipt } from "@/utils/pdfUtils";
+
 
 export default function Payments() {
-    const [searchQuery, setSearchQuery] = useState("");
     const [methodFilter, setMethodFilter] = useState("all");
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -102,12 +96,8 @@ export default function Payments() {
 
     // Filter
     const filteredPayments = paymentsData.filter((payment) => {
-        const studentName = getStudentName(payment).toLowerCase();
-        const invoiceNum = (payment.invoice?.invoice_number || "").toLowerCase();
-        const search = searchQuery.toLowerCase();
-        const matchesSearch = studentName.includes(search) || invoiceNum.includes(search);
         const matchesMethod = methodFilter === "all" || payment.method === methodFilter;
-        return matchesSearch && matchesMethod;
+        return matchesMethod;
     });
 
     // Stats calculations
@@ -214,103 +204,108 @@ export default function Payments() {
             </div>
 
             {/* SEARCH + FILTER */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
-                        placeholder="Rechercher par étudiant ou n° facture..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-
-                <div className="flex gap-2">
-                    {["all", "Espèces", "Chèque", "Virement", "Mobile Money"].map((method) => (
-                        <Button
-                            key={method}
-                            variant={methodFilter === method ? "default" : "outline"}
-                            onClick={() => setMethodFilter(method)}
-                            className={methodFilter === method ? "bg-red-600 hover:bg-red-700" : ""}
-                            size="sm"
-                        >
-                            {method === "all" ? "Tous" : method}
-                        </Button>
-                    ))}
-                </div>
+            <div className="flex flex-wrap gap-2">
+                {["all", "Espèces", "Chèque", "Virement", "Mobile Money"].map((method) => (
+                    <Button
+                        key={method}
+                        variant={methodFilter === method ? "default" : "outline"}
+                        onClick={() => setMethodFilter(method)}
+                        className={methodFilter === method ? "bg-red-600 hover:bg-red-700" : ""}
+                        size="sm"
+                    >
+                        {method === "all" ? "Tous" : method}
+                    </Button>
+                ))}
             </div>
 
             {/* TABLE */}
             <Card className="shadow-lg border-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="bg-slate-50">
-                            <TableHead className="font-bold">Date</TableHead>
-                            <TableHead className="font-bold">N° Facture</TableHead>
-                            <TableHead className="font-bold">Étudiant</TableHead>
-                            <TableHead className="font-bold">Formation</TableHead>
-                            <TableHead className="font-bold">Montant</TableHead>
-                            <TableHead className="font-bold">Mode</TableHead>
-                            <TableHead className="font-bold text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8">
-                                    Chargement...
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredPayments.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8">
-                                    Aucun paiement trouvé
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredPayments.map((payment) => (
-                                <TableRow key={payment.id}>
-                                    <TableCell className="font-medium">
-                                        {payment.payment_date
-                                            ? format(new Date(payment.payment_date), "d MMM yyyy", {
-                                                locale: fr,
-                                            })
-                                            : "N/A"}
-                                    </TableCell>
-                                    <TableCell className="font-mono font-medium">
-                                        {payment.invoice?.invoice_number || "N/A"}
-                                    </TableCell>
-                                    <TableCell className="font-semibold">{getStudentName(payment)}</TableCell>
-                                    <TableCell>{getFormationInfo(payment)}</TableCell>
-                                    <TableCell className="font-bold">
-                                        {parseFloat(payment.amount || 0).toLocaleString()} Ar
-                                    </TableCell>
-                                    <TableCell>
+                <CardContent className="p-6">
+                    {isLoading ? (
+                        <div className="flex justify-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+                        </div>
+                    ) : (
+                        <DataTable
+                            data={filteredPayments}
+                            columns={[
+                                {
+                                    key: 'payment_date',
+                                    label: 'Date',
+                                    sortable: true,
+                                    render: (payment) =>
+                                        payment.payment_date
+                                            ? format(new Date(payment.payment_date), "d MMM yyyy", { locale: fr })
+                                            : "N/A",
+                                },
+                                {
+                                    key: 'invoice_number',
+                                    label: 'N° Facture',
+                                    sortable: true,
+                                    render: (payment) => (
+                                        <span className="font-mono font-medium">
+                                            {payment.invoice?.invoice_number || "N/A"}
+                                        </span>
+                                    ),
+                                },
+                                {
+                                    key: 'student',
+                                    label: 'Étudiant',
+                                    sortable: true,
+                                    render: (payment) => getStudentName(payment),
+                                },
+                                {
+                                    key: 'formation',
+                                    label: 'Formation',
+                                    sortable: true,
+                                    render: (payment) => getFormationInfo(payment),
+                                },
+                                {
+                                    key: 'amount',
+                                    label: 'Montant',
+                                    sortable: true,
+                                    render: (payment) => (
+                                        <span className="font-bold">
+                                            {parseFloat(payment.amount || 0).toLocaleString()} Ar
+                                        </span>
+                                    ),
+                                },
+                                {
+                                    key: 'method',
+                                    label: 'Mode',
+                                    sortable: true,
+                                    render: (payment) => (
                                         <Badge variant="outline" className="bg-slate-100 text-slate-800 border">
                                             {payment.method || "N/A"}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                    ),
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    sortable: false,
+                                    searchable: false,
+                                    render: (payment) => (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
                                                     <MoreVertical className="h-5 w-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-
                                             <DropdownMenuContent align="end" className="w-40">
                                                 <DropdownMenuItem onClick={() => handleViewDetails(payment)}>
                                                     <Eye className="h-4 w-4 mr-2" />
                                                     Voir détails
                                                 </DropdownMenuItem>
-
                                                 <DropdownMenuItem onClick={() => handleEdit(payment)}>
                                                     <Edit className="h-4 w-4 mr-2" />
                                                     Modifier
                                                 </DropdownMenuItem>
-
+                                                <DropdownMenuItem onClick={() => generatePaymentReceipt(payment)}>
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Exporter PDF
+                                                </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-
                                                 <DropdownMenuItem
                                                     className="text-red-600 focus:text-red-700"
                                                     onClick={() => handleDelete(payment)}
@@ -320,12 +315,15 @@ export default function Payments() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                                    ),
+                                },
+                            ]}
+                            searchable={true}
+                            defaultPageSize={10}
+                            pageSizeOptions={[10, 25, 50, 100]}
+                        />
+                    )}
+                </CardContent>
             </Card>
 
             {/* DIALOGS */}

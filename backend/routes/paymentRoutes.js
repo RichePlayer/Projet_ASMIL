@@ -46,9 +46,10 @@ router.get('/:id', authorizeRole(['Admin', 'Gestionnaire']), getPaymentById);
 /**
  * @route   PUT /api/payments/:id
  * @desc    Mettre à jour un paiement
- * @access  Admin
+ * @access  Admin, Gestionnaire
  */
-router.put('/:id', authorizeRole(['Admin']), updatePayment);
+router.put('/:id', authorizeRole(['Admin', 'Gestionnaire']), updatePayment);
+
 
 /**
  * @route   DELETE /api/payments/:id

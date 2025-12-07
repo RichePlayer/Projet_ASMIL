@@ -1,7 +1,7 @@
 // API utility for audit logs
 import api from '@/services/api';
 
-const AUDIT_LOG_API = '/api/audit-logs';
+const AUDIT_LOG_API = '/audit-logs';
 
 /**
  * Créer un nouveau log d'audit

@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Users, Edit, Trash2, Eye, MoreVertical } from "lucide-react";
+import { Plus, Users, Edit, Trash2, Eye, MoreVertical, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
@@ -13,22 +12,13 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import DataTable from "@/components/ui/data-table";
 import TeacherFormDialog from "@/components/teachers/TeacherFormDialog";
 import TeacherDetailDialog from "@/components/teachers/TeacherDetailDialog";
 import Swal from 'sweetalert2';
 
 export default function Teachers() {
-    const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [showForm, setShowForm] = useState(false);
     const [editingTeacher, setEditingTeacher] = useState(null);
@@ -36,13 +26,16 @@ export default function Teachers() {
 
     const queryClient = useQueryClient();
 
-    const { data: teachers = [], isLoading } = useQuery({
+    const { data: teachersData, isLoading } = useQuery({
         queryKey: ["teachers"],
         queryFn: async () => {
             const response = await api.get('/teachers?limit=1000');
             return response.data.teachers || [];
         },
     });
+
+    // Ensure teachers is always an array
+    const teachers = Array.isArray(teachersData) ? teachersData : [];
 
     const deleteTeacherMutation = useMutation({
         mutationFn: (id) => api.delete(`/teachers/${id}`),
@@ -65,12 +58,8 @@ export default function Teachers() {
     });
 
     const filteredTeachers = teachers.filter((teacher) => {
-        const matchesSearch =
-            teacher.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            teacher.last_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (teacher.email || "").toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || teacher.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        return matchesStatus;
     });
 
     const getStatusColor = (status) => {
@@ -152,61 +141,36 @@ export default function Teachers() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
-                        placeholder="Rechercher un enseignant..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    {["all", "actif", "inactif", "congé"].map((status) => (
-                        <Button
-                            key={status}
-                            variant={statusFilter === status ? "default" : "outline"}
-                            onClick={() => setStatusFilter(status)}
-                            className={statusFilter === status ? "bg-red-600 hover:bg-red-700" : ""}
-                            size="sm"
-                        >
-                            {status === "all" ? "Tous" : status.charAt(0).toUpperCase() + status.slice(1)}
-                        </Button>
-                    ))}
-                </div>
+            <div className="flex flex-wrap gap-2">
+                {["all", "actif", "inactif", "congé"].map((status) => (
+                    <Button
+                        key={status}
+                        variant={statusFilter === status ? "default" : "outline"}
+                        onClick={() => setStatusFilter(status)}
+                        className={statusFilter === status ? "bg-red-600 hover:bg-red-700" : ""}
+                        size="sm"
+                    >
+                        {status === "all" ? "Tous" : status.charAt(0).toUpperCase() + status.slice(1)}
+                    </Button>
+                ))}
             </div>
 
             {/* Teachers Table */}
             <Card className="shadow-lg border-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="bg-slate-50">
-                            <TableHead className="font-bold">Enseignant</TableHead>
-                            <TableHead className="font-bold">Email</TableHead>
-                            <TableHead className="font-bold">Téléphone</TableHead>
-                            <TableHead className="font-bold">Spécialités</TableHead>
-                            <TableHead className="font-bold">Statut</TableHead>
-                            <TableHead className="font-bold text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                                    Chargement...
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredTeachers.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                                    Aucun enseignant trouvé
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredTeachers.map((teacher) => (
-                                <TableRow key={teacher.id} className="hover:bg-slate-50 transition-colors">
-                                    <TableCell>
+                <CardContent className="p-6">
+                    {isLoading ? (
+                        <div className="flex justify-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+                        </div>
+                    ) : (
+                        <DataTable
+                            data={filteredTeachers}
+                            columns={[
+                                {
+                                    key: 'name',
+                                    label: 'Enseignant',
+                                    sortable: true,
+                                    render: (teacher) => (
                                         <div className="flex items-center gap-3">
                                             {teacher.photo_url ? (
                                                 <img
@@ -223,10 +187,25 @@ export default function Teachers() {
                                                 {teacher.first_name} {teacher.last_name}
                                             </span>
                                         </div>
-                                    </TableCell>
-                                    <TableCell className="text-slate-600">{teacher.email}</TableCell>
-                                    <TableCell className="text-slate-600">{teacher.phone || "-"}</TableCell>
-                                    <TableCell>
+                                    ),
+                                },
+                                {
+                                    key: 'email',
+                                    label: 'Email',
+                                    sortable: true,
+                                },
+                                {
+                                    key: 'phone',
+                                    label: 'Téléphone',
+                                    sortable: true,
+                                    render: (teacher) => teacher.phone || "-",
+                                },
+                                {
+                                    key: 'specialties',
+                                    label: 'Spécialités',
+                                    sortable: false,
+                                    searchable: false,
+                                    render: (teacher) => (
                                         <div className="flex gap-1 flex-wrap">
                                             {teacher.specialties?.slice(0, 2).map((spec, idx) => (
                                                 <Badge key={idx} variant="outline" className="text-xs">
@@ -239,26 +218,35 @@ export default function Teachers() {
                                                 </Badge>
                                             )}
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
+                                    ),
+                                },
+                                {
+                                    key: 'status',
+                                    label: 'Statut',
+                                    sortable: true,
+                                    render: (teacher) => (
                                         <Badge variant="outline" className={`${getStatusColor(teacher.status)} border`}>
                                             {teacher.status}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                    ),
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    sortable: false,
+                                    searchable: false,
+                                    render: (teacher) => (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
                                                     <MoreVertical className="h-5 w-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-
                                             <DropdownMenuContent align="end" className="w-40">
                                                 <DropdownMenuItem onClick={() => setViewingTeacher(teacher)}>
                                                     <Eye className="h-4 w-4 mr-2" />
                                                     Voir détails
                                                 </DropdownMenuItem>
-
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         setEditingTeacher(teacher);
@@ -268,7 +256,6 @@ export default function Teachers() {
                                                     <Edit className="h-4 w-4 mr-2" />
                                                     Modifier
                                                 </DropdownMenuItem>
-
                                                 <DropdownMenuItem
                                                     className="text-red-600 focus:text-red-700"
                                                     onClick={() => {
@@ -293,13 +280,15 @@ export default function Teachers() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </TableCell>
-
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                                    ),
+                                },
+                            ]}
+                            searchable={true}
+                            defaultPageSize={10}
+                            pageSizeOptions={[10, 25, 50, 100]}
+                        />
+                    )}
+                </CardContent>
             </Card>
 
             {/* Dialogs */}
