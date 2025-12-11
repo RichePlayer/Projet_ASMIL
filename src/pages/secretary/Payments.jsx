@@ -155,49 +155,60 @@ export default function Payments() {
             </div>
 
             {/* STATS */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-green-100">
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-green-700">Total Encaissé</p>
-                                <h3 className="text-3xl font-bold text-green-900 mt-2">
-                                    {totalRevenue.toLocaleString()} Ar
-                                </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <DollarSign className="h-32 w-32 text-emerald-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <DollarSign className="h-6 w-6" />
                             </div>
-                            <div className="p-3 rounded-xl bg-green-600 shadow-lg">
-                                <DollarSign className="h-6 w-6 text-white" />
-                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Total</span>
+                        </div>
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">Total Encaissé</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalRevenue.toLocaleString()} Ar</h3>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-blue-700">Nombre de Paiements</p>
-                                <h3 className="text-3xl font-bold text-blue-900 mt-2">{totalPayments}</h3>
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-pink-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <CreditCard className="h-32 w-32 text-pink-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl text-white shadow-lg shadow-pink-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <CreditCard className="h-6 w-6" />
                             </div>
-                            <div className="p-3 rounded-xl bg-blue-600 shadow-lg">
-                                <CreditCard className="h-6 w-6 text-white" />
-                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Compteur</span>
+                        </div>
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">Nombre de Paiements</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalPayments}</h3>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="shadow-lg border-0 bg-gradient-to-br from-red-50 to-red-100">
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-red-700">Paiement Moyen</p>
-                                <h3 className="text-3xl font-bold text-red-900 mt-2">
-                                    {averagePayment.toLocaleString()} Ar
-                                </h3>
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <TrendingUp className="h-32 w-32 text-red-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <TrendingUp className="h-6 w-6" />
                             </div>
-                            <div className="p-3 rounded-xl bg-red-600 shadow-lg">
-                                <TrendingUp className="h-6 w-6 text-white" />
-                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Moyenne</span>
+                        </div>
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">Paiement Moyen</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{averagePayment.toLocaleString()} Ar</h3>
                         </div>
                     </CardContent>
                 </Card>

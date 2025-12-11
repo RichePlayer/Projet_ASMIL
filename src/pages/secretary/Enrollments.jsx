@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
-import { Plus, UserCheck, Edit, Trash2, MoreVertical, Loader2 } from "lucide-react";
+import { Plus, UserCheck, Edit, Trash2, MoreVertical, Loader2, Wallet, CreditCard } from "lucide-react";
 import DataTable from "@/components/ui/data-table";
 
 import { format } from "date-fns";
@@ -126,11 +126,11 @@ export default function Enrollments() {
 
   const totalActive = enrollments.filter((e) => e.status === "actif").length;
   const totalRevenue = enrollments.reduce(
-    (sum, e) => sum + (e.paid_amount || 0),
+    (sum, e) => sum + parseFloat(e.paid_amount || 0),
     0
   );
   const totalPending = enrollments.reduce(
-    (sum, e) => sum + ((e.total_amount || 0) - (e.paid_amount || 0)),
+    (sum, e) => sum + (parseFloat(e.total_amount || 0) - parseFloat(e.paid_amount || 0)),
     0
   );
 
@@ -162,57 +162,60 @@ export default function Enrollments() {
       </div>
 
       {/* STATS */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-green-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-700">
-                  Inscriptions Actives
-                </p>
-                <h3 className="text-3xl font-bold text-green-900 mt-2">
-                  {totalActive}
-                </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <UserCheck className="h-32 w-32 text-emerald-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <UserCheck className="h-6 w-6" />
               </div>
-              <div className="p-3 rounded-xl bg-green-600 shadow-lg">
-                <UserCheck className="h-6 w-6 text-white" />
-              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Actives</span>
+            </div>
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">Inscriptions Actives</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalActive}</h3>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700">
-                  Revenus Encaissés
-                </p>
-                <h3 className="text-3xl font-bold text-blue-900 mt-2">
-                  {formatAmount(totalRevenue)} Ar
-                </h3>
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-pink-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <Wallet className="h-32 w-32 text-pink-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl text-white shadow-lg shadow-pink-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <Wallet className="h-6 w-6" />
               </div>
-              <div className="p-3 rounded-xl bg-blue-600 shadow-lg">
-                <UserCheck className="h-6 w-6 text-white" />
-              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Encaissés</span>
+            </div>
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">Revenus Encaissés</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{formatAmount(totalRevenue)} Ar</h3>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-red-50 to-red-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-700">
-                  Reste à Payer
-                </p>
-                <h3 className="text-3xl font-bold text-red-900 mt-2">
-                  {formatAmount(totalPending)} Ar
-                </h3>
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <CreditCard className="h-32 w-32 text-red-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <CreditCard className="h-6 w-6" />
               </div>
-              <div className="p-3 rounded-xl bg-red-600 shadow-lg">
-                <UserCheck className="h-6 w-6 text-white" />
-              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Reste</span>
+            </div>
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">Reste à Payer</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{formatAmount(totalPending)} Ar</h3>
             </div>
           </CardContent>
         </Card>
