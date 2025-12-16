@@ -1,223 +1,185 @@
+import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 /**
- * Génère un PDF Professionnel en ouvrant une nouvelle fenêtre
- * (l'utilisateur clique ensuite sur "Imprimer / Sauvegarder PDF").
+ * Génère un PDF professionnel et épuré pour une annonce
+ * Design simple et moderne sans bordures décoratives
  */
 export const generateAnnouncementPDF = (announcement) => {
-  const pdfWindow = window.open("", "_blank");
+  const doc = new jsPDF("p", "mm", "a4");
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 20;
+  const contentWidth = pageWidth - (margin * 2);
 
-  const typeColors = {
-    information: { bg: "#DBEAFE", border: "#3B82F6", text: "#1E40AF" },
-    urgent: { bg: "#FEE2E2", border: "#EF4444", text: "#991B1B" },
-    événement: { bg: "#FCE7F3", border: "#EC4899", text: "#831843" },
-    "session ouverte": { bg: "#D1FAE5", border: "#10B981", text: "#065F46" },
+  // Colors by type
+  const typeStyles = {
+    information: { primary: [59, 130, 246], light: [239, 246, 255], label: "INFORMATION" },
+    urgent: { primary: [239, 68, 68], light: [254, 242, 242], label: "URGENT" },
+    événement: { primary: [168, 85, 247], light: [250, 245, 255], label: "ÉVÉNEMENT" },
+    "session ouverte": { primary: [34, 197, 94], light: [240, 253, 244], label: "SESSION OUVERTE" },
   };
 
-  const typeEmojis = {
-    information: "ℹ️",
-    urgent: "🚨",
-    événement: "📅",
-    "session ouverte": "🎓",
-  };
+  const style = typeStyles[announcement.type] || typeStyles.information;
 
-  const colors = typeColors[announcement.type] || typeColors.information;
-  const emoji = typeEmojis[announcement.type] || "📢";
-
+  // Format dates
   const publishDate = announcement.publish_date
-    ? format(new Date(announcement.publish_date), "d MMMM yyyy", { locale: fr })
-    : format(new Date(announcement.created_date), "d MMMM yyyy", { locale: fr });
+    ? format(new Date(announcement.publish_date), "EEEE d MMMM yyyy", { locale: fr })
+    : format(new Date(), "EEEE d MMMM yyyy", { locale: fr });
 
-  const expiry = announcement.expiry_date
+  const expiryDate = announcement.expiry_date
     ? format(new Date(announcement.expiry_date), "d MMMM yyyy", { locale: fr })
     : null;
 
-  // ---- HTML PDF TEMPLATE ----
-  const pdfHTML = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Annonce - ${announcement.title}</title>
+  // ===========================================
+  //  🔴 HEADER ASMiL (compact)
+  // ===========================================
+  doc.setFillColor(220, 38, 38);
+  doc.rect(0, 0, pageWidth, 28, "F");
 
-    <style>
-      @page { size: A4; margin: 0; }
+  // Logo ASMiL
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(255, 255, 255);
+  doc.text("ASMiL", 15, 12);
 
-      body {
-        font-family: Arial, sans-serif;
-        padding: 40px;
-        background: white;
-      }
+  // Sous-titre
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(254, 226, 226);
+  doc.text("Centre de Formation Professionnelle", 15, 20);
 
-      .announcement {
-        max-width: 800px;
-        margin: 0 auto;
-        border: 8px solid #DC2626;
-        background: white;
-      }
+  // Date à droite
+  doc.setFontSize(9);
+  doc.text(format(new Date(), "d MMMM yyyy", { locale: fr }), pageWidth - 15, 16, { align: "right" });
 
-      .header {
-        background: #DC2626;
-        color: white;
-        padding: 40px;
-        text-align: center;
-      }
+  // ===========================================
+  //  🏷️ BADGE TYPE
+  // ===========================================
+  const badgeY = 38;
+  const badgeWidth = 65;
+  const badgeHeight = 12;
+  const badgeX = (pageWidth - badgeWidth) / 2;
 
-      .header h1 {
-        font-size: 48px;
-        font-weight: bold;
-        margin: 0;
-      }
+  doc.setFillColor(...style.primary);
+  doc.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 6, 6, "F");
 
-      .header p {
-        margin: 8px 0 0;
-        font-size: 16px;
-        opacity: 0.9;
-      }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(255, 255, 255);
+  doc.text(style.label, pageWidth / 2, badgeY + 8.5, { align: "center" });
 
-      .content {
-        padding: 40px;
-      }
+  // ===========================================
+  //  📋 TITRE
+  // ===========================================
+  const titleY = 68;
 
-      .type-badge {
-        display: inline-block;
-        background: ${colors.bg};
-        border: 3px solid ${colors.border};
-        color: ${colors.text};
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 30px;
-      }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.setTextColor(30, 41, 59);
 
-      .title {
-        font-size: 36px;
-        font-weight: bold;
-        color: #1e293b;
-        margin-bottom: 20px;
-      }
+  const titleLines = doc.splitTextToSize(announcement.title, contentWidth);
+  titleLines.forEach((line, i) => {
+    doc.text(line, pageWidth / 2, titleY + (i * 9), { align: "center" });
+  });
 
-      .meta {
-        display: flex;
-        gap: 30px;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e2e8f0;
-        color: #64748b;
-        font-size: 14px;
-      }
+  const titleEndY = titleY + (titleLines.length * 9) + 5;
 
-      .content-text {
-        font-size: 18px;
-        line-height: 1.8;
-        color: #1e293b;
-        white-space: pre-wrap;
-      }
+  // ===========================================
+  //  📅 MÉTADONNÉES
+  // ===========================================
+  // Ligne séparatrice
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.5);
+  doc.line(margin, titleEndY, pageWidth - margin, titleEndY);
 
-      .target-audience {
-        background: #f8fafc;
-        border-left: 4px solid #DC2626;
-        padding: 20px;
-        margin-top: 30px;
-        font-size: 16px;
-      }
+  const metaY = titleEndY + 12;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
 
-      .dates-section {
-        margin-top: 40px;
-        padding: 20px;
-        background: #fef3c7;
-        border: 2px solid #f59e0b;
-        border-radius: 8px;
-      }
+  // Date publication
+  doc.text("Publié le " + publishDate.charAt(0).toUpperCase() + publishDate.slice(1), margin, metaY);
 
-      .footer {
-        text-align: center;
-        color: #64748b;
-        margin-top: 60px;
-        padding-top: 30px;
-        border-top: 2px solid #e2e8f0;
-        font-size: 14px;
-      }
+  // Public cible
+  const targetLabel = announcement.target_audience === "tous" ? "Tout le monde"
+    : announcement.target_audience === "étudiants" ? "Étudiants" : "Formateurs";
+  doc.text("Public : " + targetLabel, pageWidth - margin, metaY, { align: "right" });
 
-      @media print {
-        .no-print { display: none; }
-        body { padding: 0; }
-      }
-    </style>
-  </head>
+  // Ligne séparatrice
+  doc.line(margin, metaY + 8, pageWidth - margin, metaY + 8);
 
-  <body>
-    <div class="announcement">
-      <div class="header">
-        <h1>ASMiL</h1>
-        <p>Admission • Ménage, Innovation et Leadership</p>
-      </div>
+  // ===========================================
+  //  📝 CONTENU
+  // ===========================================
+  const contentStartY = metaY + 25;
 
-      <div class="content">
-        <div class="type-badge">${emoji} ${announcement.type.toUpperCase()}</div>
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(51, 65, 85);
 
-        <h2 class="title">${announcement.title}</h2>
+  const contentLines = doc.splitTextToSize(announcement.content, contentWidth);
+  const lineHeight = 7;
+  let currentY = contentStartY;
 
-        <div class="meta">
-          <div><strong>📅 Publié :</strong> ${publishDate}</div>
-          ${
-            expiry
-              ? `<div><strong>⏰ Expire :</strong> ${expiry}</div>`
-              : ""
-          }
-        </div>
+  contentLines.forEach((line) => {
+    if (currentY > pageHeight - 60) {
+      doc.addPage();
 
-        <div class="content-text">${announcement.content}</div>
+      // Mini header page suivante
+      doc.setFillColor(220, 38, 38);
+      doc.rect(0, 0, pageWidth, 15, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text("ASMiL - Annonce (suite)", pageWidth / 2, 10, { align: "center" });
 
-        <div class="target-audience">
-          <strong>🎯 Public Cible :</strong>
-          ${
-            announcement.target_audience === "tous"
-              ? "Tous"
-              : announcement.target_audience === "étudiants"
-              ? "Étudiants"
-              : "Formateurs"
-          }
-        </div>
+      currentY = 30;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(51, 65, 85);
+    }
+    doc.text(line, margin, currentY);
+    currentY += lineHeight;
+  });
 
-        ${
-          expiry
-            ? `
-          <div class="dates-section">
-            <h3>⚠️ Information Temporaire</h3>
-            <p>Cette annonce expire le ${expiry}</p>
-          </div>`
-            : ""
-        }
+  // ===========================================
+  //  ⚠️ ENCADRÉ EXPIRATION
+  // ===========================================
+  if (expiryDate && currentY < pageHeight - 70) {
+    const warningY = currentY + 15;
 
-        <div class="footer">
-          <p><strong>ASMiL - Centre de Formation</strong></p>
-          <p>Généré le ${format(
-            new Date(),
-            "d MMMM yyyy à HH:mm",
-            { locale: fr }
-          )}</p>
-        </div>
-      </div>
-    </div>
+    doc.setFillColor(255, 251, 235);
+    doc.roundedRect(margin, warningY, contentWidth, 20, 3, 3, "F");
+    doc.setDrawColor(245, 158, 11);
+    doc.setLineWidth(0.8);
+    doc.roundedRect(margin, warningY, contentWidth, 20, 3, 3, "S");
 
-    <div class="no-print" style="text-align:center;margin-top:30px;">
-      <button onclick="window.print()" 
-        style="background:#DC2626;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-right:10px;">
-        📄 Imprimer / Sauvegarder PDF
-      </button>
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(146, 64, 14);
+    doc.text("Cette annonce expire le " + expiryDate, pageWidth / 2, warningY + 12, { align: "center" });
+  }
 
-      <button onclick="window.close()" 
-        style="background:#64748b;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:16px;cursor:pointer;">
-        Fermer
-      </button>
-    </div>
-  </body>
-  </html>
-  `;
+  // ===========================================
+  //  📌 PIED DE PAGE
+  // ===========================================
+  const footerY = pageHeight - 25;
 
-  pdfWindow.document.write(pdfHTML);
-  pdfWindow.document.close();
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  doc.line(margin, footerY, pageWidth - margin, footerY);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184);
+  doc.text("ASMiL - Centre de Formation Professionnelle", margin, footerY + 8);
+  doc.text(`Généré le ${format(new Date(), "d MMMM yyyy à HH:mm", { locale: fr })}`, pageWidth - margin, footerY + 8, { align: "right" });
+
+  // ===========================================
+  //  💾 EXPORT
+  // ===========================================
+  const fileName = `Annonce_${announcement.title.replace(/[^a-zA-Z0-9àâäéèêëïîôùûüç]/gi, '_').substring(0, 25)}.pdf`;
+  doc.save(fileName);
 };

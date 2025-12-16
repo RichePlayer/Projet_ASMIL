@@ -24,9 +24,9 @@ router.use(authenticateToken);
 /**
  * @route   POST /api/announcements
  * @desc    Créer une nouvelle annonce
- * @access  Admin
+ * @access  Admin, Gestionnaire
  */
-router.post('/', authorizeRole(['Admin']), createAnnouncement);
+router.post('/', authorizeRole(['Admin', 'Gestionnaire']), createAnnouncement);
 
 /**
  * @route   GET /api/announcements
@@ -46,15 +46,15 @@ router.get('/:id', authorizeRole(['Admin', 'Gestionnaire']), getAnnouncementById
 /**
  * @route   PUT /api/announcements/:id
  * @desc    Mettre à jour une annonce
- * @access  Admin
+ * @access  Admin, Gestionnaire
  */
-router.put('/:id', authorizeRole(['Admin']), updateAnnouncement);
+router.put('/:id', authorizeRole(['Admin', 'Gestionnaire']), updateAnnouncement);
 
 /**
  * @route   DELETE /api/announcements/:id
  * @desc    Supprimer une annonce
- * @access  Admin
+ * @access  Admin, Gestionnaire
  */
-router.delete('/:id', authorizeRole(['Admin']), deleteAnnouncement);
+router.delete('/:id', authorizeRole(['Admin', 'Gestionnaire']), deleteAnnouncement);
 
 module.exports = router;
