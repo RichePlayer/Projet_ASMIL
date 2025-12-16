@@ -1,6 +1,9 @@
 import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { invoiceAPI, enrollmentAPI, studentAPI, paymentAPI } from "@/api/localDB";
+import invoiceService from "@/services/invoiceService";
+import paymentService from "@/services/paymentService";
+import enrollmentService from "@/services/enrollmentService";
+import studentService from "@/services/studentService";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -26,22 +29,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function NotificationDropdown() {
     const { data: invoicesData } = useQuery({
         queryKey: ["invoices"],
-        queryFn: () => invoiceAPI.list("-created_date", 1000),
+        queryFn: () => invoiceService.getAll(),
     });
 
     const { data: paymentsData } = useQuery({
         queryKey: ["payments"],
-        queryFn: () => paymentAPI.list("-created_date", 1000),
+        queryFn: () => paymentService.getAll(),
     });
 
     const { data: enrollmentsData } = useQuery({
         queryKey: ["enrollments"],
-        queryFn: () => enrollmentAPI.list(),
+        queryFn: () => enrollmentService.getAll(),
     });
 
     const { data: studentsData } = useQuery({
         queryKey: ["students"],
-        queryFn: () => studentAPI.list(),
+        queryFn: () => studentService.getAll(),
     });
 
     // Ensure all data is always an array

@@ -10,7 +10,13 @@ export const sessionService = {
     // Get all sessions (legacy method)
     async getAll() {
         const response = await api.get('/sessions');
-        return response.data.sessions || response.data;
+        // L'API retourne { sessions: [...], pagination: {...} }
+        // On s'assure de toujours retourner un tableau
+        if (response.data.sessions && Array.isArray(response.data.sessions)) {
+            return response.data.sessions;
+        }
+        // Fallback si la structure est différente
+        return Array.isArray(response.data) ? response.data : [];
     },
 
     // Get session by ID

@@ -16,7 +16,13 @@ router.get('/me', authenticateToken, (req, res) => {
 });
 
 // User Management Routes (Admin only ideally, but for now authenticated)
-const { getAllUsers, updateUser, deleteUser, updateUserStatus, resetPassword } = require('../controllers/authController');
+const { getAllUsers, updateUser, deleteUser, updateUserStatus, resetPassword, updateProfile, changePassword, uploadAvatar } = require('../controllers/authController');
+const upload = require('../middleware/uploadMiddleware');
+
+// Profile management routes (for authenticated users to manage their own profile)
+router.put('/profile/:id', authenticateToken, updateProfile);
+router.put('/change-password/:id', authenticateToken, changePassword);
+router.post('/upload-avatar/:id', authenticateToken, upload.single('avatar'), uploadAvatar);
 
 router.get('/users', authenticateToken, getAllUsers);
 router.put('/users/:id', authenticateToken, updateUser);

@@ -12,14 +12,19 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  full_name    String    @db.VarChar(100)
-  email        String    @unique @db.VarChar(150)
-  password_hash String   @db.VarChar(255)
-  role         String    @db.VarChar(50) // 'Admin', 'Gestionnaire'
-  status       String?   @default("active") @db.VarChar(20) // 'active', 'inactive'
-  last_login   DateTime?
-  created_at   DateTime  @default(now())
+  id            Int       @id @default(autoincrement())
+  full_name     String    @db.VarChar(100)
+  email         String    @unique @db.VarChar(150)
+  password_hash String    @db.VarChar(255)
+  role          String    @db.VarChar(50) // 'Admin', 'Gestionnaire'
+  status        String?   @default("active") @db.VarChar(20) // 'active', 'inactive'
+  phone         String?   @db.VarChar(50)
+  address       String?   @db.Text
+  bio           String?   @db.Text
+  avatar_url    String?   @db.VarChar(255)
+  office        String?   @db.VarChar(100)
+  last_login    DateTime?
+  created_at    DateTime  @default(now())
 
   @@map("users")
 }

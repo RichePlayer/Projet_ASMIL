@@ -49,8 +49,15 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("asmil_user");
     };
 
+    const updateUser = (updatedUserData) => {
+        // Conserver le token existant
+        const userWithToken = { ...user, ...updatedUserData };
+        setUser(userWithToken);
+        localStorage.setItem("asmil_user", JSON.stringify(userWithToken));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

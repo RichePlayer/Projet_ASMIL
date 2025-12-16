@@ -30,31 +30,33 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 // ADMIN MENU - Only admin pages
-const adminMenuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { name: "Utilisateurs", icon: Users, path: "/admin/users" },
-  { name: "Enseignants", icon: UserCog, path: "/admin/teachers" },
-  { name: "Formations", icon: BookOpen, path: "/admin/formations" },
-  { name: "Modules", icon: FileText, path: "/admin/modules" },
-  { name: "Sessions", icon: Calendar, path: "/admin/sessions" },
-  { name: "Logs", icon: Shield, path: "/admin/logs" },
-  { name: "Sauvegardes", icon: Database, path: "/admin/backups" },
-  { name: "Paramètres", icon: Settings, path: "/admin/settings" },
+const getAdminMenuItems = (t) => [
+  { name: t('nav.dashboard'), icon: LayoutDashboard, path: "/admin/dashboard" },
+  { name: t('nav.users'), icon: Users, path: "/admin/users" },
+  { name: t('nav.teachers'), icon: UserCog, path: "/admin/teachers" },
+  { name: t('nav.formations'), icon: BookOpen, path: "/admin/formations" },
+  { name: t('nav.modules'), icon: FileText, path: "/admin/modules" },
+  { name: t('nav.sessions'), icon: Calendar, path: "/admin/sessions" },
+  { name: t('nav.logs'), icon: Shield, path: "/admin/logs" },
+  { name: t('nav.backups'), icon: Database, path: "/admin/backups" },
+  { name: t('nav.settings'), icon: Settings, path: "/admin/settings" },
 ];
 
 // SECRETARY MENU - Only operational pages
-const secretaryMenuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/secretary/dashboard" },
-  { name: "Étudiants", icon: GraduationCap, path: "/secretary/students" },
-  { name: "Inscriptions", icon: ClipboardCheck, path: "/secretary/enrollments" },
-  { name: "Paiements", icon: CreditCard, path: "/secretary/payments" },
-  { name: "Notes", icon: FileText, path: "/secretary/grades" },
-  { name: "Présences", icon: ClipboardCheck, path: "/secretary/attendance" },
-  { name: "Certificats", icon: Award, path: "/secretary/certificates" },
-  { name: "Annonces", icon: Bell, path: "/secretary/announcements" },
-  { name: "Emploi du Temps", icon: Calendar, path: "/secretary/timetable" },
+const getSecretaryMenuItems = (t) => [
+  { name: t('nav.dashboard'), icon: LayoutDashboard, path: "/secretary/dashboard" },
+  { name: t('nav.students'), icon: GraduationCap, path: "/secretary/students" },
+  { name: t('nav.enrollments'), icon: ClipboardCheck, path: "/secretary/enrollments" },
+  { name: t('nav.payments'), icon: CreditCard, path: "/secretary/payments" },
+  { name: t('nav.grades'), icon: FileText, path: "/secretary/grades" },
+  { name: t('nav.attendance'), icon: ClipboardCheck, path: "/secretary/attendance" },
+  { name: t('nav.certificates'), icon: Award, path: "/secretary/certificates" },
+  { name: t('nav.announcements'), icon: Bell, path: "/secretary/announcements" },
+  { name: t('nav.timetable'), icon: Calendar, path: "/secretary/timetable" },
 ];
 
 export default function Layout({ children }) {
@@ -62,6 +64,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -69,7 +72,7 @@ export default function Layout({ children }) {
   };
 
   // Get menu items based on role - COMPLETELY SEPARATE
-  const menuItems = user?.role === "Admin" ? adminMenuItems : secretaryMenuItems;
+  const menuItems = user?.role === "Admin" ? getAdminMenuItems(t) : getSecretaryMenuItems(t);
 
   if (isLoading) {
     return (
@@ -104,7 +107,7 @@ export default function Layout({ children }) {
         {/* MENU */}
         <nav className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar space-y-2">
           <div className="px-4 mb-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            {user.role === "Admin" ? "Administration" : "Gestion"}
+            {user.role === "Admin" ? t('common.administration') : t('common.management')}
           </div>
           <ul className="space-y-1.5">
             {menuItems.map((item) => {
@@ -135,7 +138,7 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-lg hover:shadow-slate-200/50 hover:border-slate-200 transition-all duration-300 cursor-pointer group">
               <div className="relative">
                 <Avatar className="h-10 w-10 border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
-                  <AvatarImage src={user.avatar} />
+                  <AvatarImage src={user.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-red-500 to-red-600 text-white font-bold text-xs">{user.full_name[0]}</AvatarFallback>
                 </Avatar>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
@@ -160,6 +163,7 @@ export default function Layout({ children }) {
           <img src="/logo_asmil.jpg" alt="ASMiL" className="h-8 object-contain" />
         </div>
         <Avatar className="h-8 w-8 border border-slate-200">
+          <AvatarImage src={user.avatar_url} />
           <AvatarFallback className="bg-red-50 text-red-600 font-bold text-xs">{user.full_name[0]}</AvatarFallback>
         </Avatar>
       </div>
@@ -201,6 +205,7 @@ export default function Layout({ children }) {
         {/* HEADER DESKTOP */}
         <header className="hidden lg:flex h-16 items-center justify-end px-8 sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shadow-sm">
           <div className="flex items-center gap-3">
+            <LanguageSelector />
             {user.role === "Admin" && (
               <>
                 <NotificationDropdown />
@@ -212,7 +217,7 @@ export default function Layout({ children }) {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 outline-none">
                   <Avatar className="h-8 w-8 border border-slate-200">
-                    <AvatarImage src={user.avatar} />
+                    <AvatarImage src={user.avatar_url} />
                     <AvatarFallback className="bg-red-600 text-white text-xs font-bold">{user.full_name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-sm mr-1">

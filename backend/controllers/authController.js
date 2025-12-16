@@ -207,6 +207,182 @@ const resetPassword = async (req, res) => {
     }
 };
 
+/**
+ * Mettre à jour le profil de l'utilisateur connecté
+ */
+const updateProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { full_name, email, phone, address, bio, office, avatar_url } = req.body;
+
+        // Vérifier que l'utilisateur existe
+        const existingUser = await prisma.user.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!existingUser) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Vérifier si l'email est déjà utilisé par un autre utilisateur
+        if (email && email !== existingUser.email) {
+            const emailExists = await prisma.user.findUnique({
+                where: { email }
+            });
+            if (emailExists) {
+                return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+            }
+        }
+
+        // Mettre à jour le profil
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: {
+                full_name: full_name || existingUser.full_name,
+                email: email || existingUser.email,
+                phone: phone !== undefined ? phone : existingUser.phone,
+                address: address !== undefined ? address : existingUser.address,
+                bio: bio !== undefined ? bio : existingUser.bio,
+                office: office !== undefined ? office : existingUser.office,
+                avatar_url: avatar_url !== undefined ? avatar_url : existingUser.avatar_url
+            },
+            select: {
+                id: true,
+                full_name: true,
+                email: true,
+                role: true,
+                status: true,
+                phone: true,
+                address: true,
+                bio: true,
+                office: true,
+                avatar_url: true,
+                last_login: true,
+                created_at: true
+            }
+        });
+
+        res.json({
+            message: 'Profil mis à jour avec succès',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Erreur mise à jour profil:', error);
+        res.status(500).json({ message: 'Erreur lors de la mise à jour du profil', error: error.message });
+    }
+};
+
+/**
+ * Changer le mot de passe de l'utilisateur connecté
+ */
+const changePassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'L\'ancien et le nouveau mot de passe sont requis' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'Le nouveau mot de passe doit contenir au moins 6 caractères' });
+        }
+
+        // Récupérer l'utilisateur
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Vérifier l'ancien mot de passe
+        const isMatch = await comparePassword(currentPassword, user.password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+        }
+
+        // Hasher le nouveau mot de passe
+        const password_hash = await hashPassword(newPassword);
+
+        // Mettre à jour le mot de passe
+        await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { password_hash }
+        });
+
+        res.json({ message: 'Mot de passe changé avec succès' });
+    } catch (error) {
+        console.error('Erreur changement mot de passe:', error);
+        res.status(500).json({ message: 'Erreur lors du changement de mot de passe', error: error.message });
+    }
+};
+
+/**
+ * Upload d'avatar pour l'utilisateur
+ */
+const uploadAvatar = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'Aucun fichier fourni' });
+        }
+
+        // Récupérer l'utilisateur
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Supprimer l'ancien avatar s'il existe
+        if (user.avatar_url) {
+            const fs = require('fs');
+            const path = require('path');
+            const oldAvatarPath = path.join(__dirname, '..', user.avatar_url);
+
+            if (fs.existsSync(oldAvatarPath)) {
+                fs.unlinkSync(oldAvatarPath);
+            }
+        }
+
+        // Construire l'URL de l'avatar
+        const avatar_url = `/uploads/avatars/${req.file.filename}`;
+
+        // Mettre à jour l'utilisateur avec la nouvelle URL d'avatar
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { avatar_url },
+            select: {
+                id: true,
+                full_name: true,
+                email: true,
+                role: true,
+                status: true,
+                phone: true,
+                address: true,
+                bio: true,
+                office: true,
+                avatar_url: true,
+                last_login: true,
+                created_at: true
+            }
+        });
+
+        res.json({
+            message: 'Avatar uploadé avec succès',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Erreur upload avatar:', error);
+        res.status(500).json({ message: 'Erreur lors de l\'upload de l\'avatar', error: error.message });
+    }
+};
+
 module.exports = {
     register,
     login,
@@ -214,5 +390,8 @@ module.exports = {
     updateUser,
     deleteUser,
     updateUserStatus,
-    resetPassword
+    resetPassword,
+    updateProfile,
+    changePassword,
+    uploadAvatar
 };
