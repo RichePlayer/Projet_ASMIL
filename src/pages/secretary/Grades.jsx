@@ -135,11 +135,18 @@ export default function Grades() {
   const sessionEnrollments = enrollments;
 
   // Calculate statistics
-  const totalGrades = pagination.total || 0;
+  const totalGrades = pagination.total || grades.length;
   const averageGrade = grades.length > 0
     ? (grades.reduce((sum, g) => sum + (parseFloat(g.value) / parseFloat(g.max_value)) * 20, 0) / grades.length).toFixed(2)
     : 0;
   const uniqueStudents = new Set(grades.map(g => g.enrollment?.student_id)).size;
+
+  // Statistiques supplémentaires
+  const passingGrades = grades.filter(g => (parseFloat(g.value) / parseFloat(g.max_value)) * 20 >= 10).length;
+  const successRate = grades.length > 0 ? ((passingGrades / grades.length) * 100).toFixed(1) : 0;
+  const bestGrade = grades.length > 0
+    ? Math.max(...grades.map(g => (parseFloat(g.value) / parseFloat(g.max_value)) * 20)).toFixed(2)
+    : 0;
 
   // Calculate ranking
   const getTopStudents = () => {
@@ -210,7 +217,8 @@ export default function Grades() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        {/* Total Notes */}
         <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
             <BookOpen className="h-32 w-32 text-emerald-600" />
@@ -230,6 +238,7 @@ export default function Grades() {
           </CardContent>
         </Card>
 
+        {/* Moyenne */}
         <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
             <TrendingUp className="h-32 w-32 text-red-600" />
@@ -240,7 +249,7 @@ export default function Grades() {
               <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <TrendingUp className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Performance</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Moyenne</span>
             </div>
             <div>
               <p className="text-slate-500 text-sm font-semibold mb-1">Moyenne Générale</p>
@@ -249,6 +258,7 @@ export default function Grades() {
           </CardContent>
         </Card>
 
+        {/* Étudiants */}
         <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-pink-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
             <Award className="h-32 w-32 text-pink-600" />
@@ -264,6 +274,46 @@ export default function Grades() {
             <div>
               <p className="text-slate-500 text-sm font-semibold mb-1">Étudiants</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{uniqueStudents}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Taux de Réussite */}
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-blue-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <Trophy className="h-32 w-32 text-blue-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <Trophy className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Réussite</span>
+            </div>
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">Taux de Réussite</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{successRate}<span className="text-xl">%</span></h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Meilleure Note */}
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-purple-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <BarChart3 className="h-32 w-32 text-purple-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl text-white shadow-lg shadow-purple-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <BarChart3 className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Max</span>
+            </div>
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">Meilleure Note</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{bestGrade}<span className="text-xl">/20</span></h3>
             </div>
           </CardContent>
         </Card>

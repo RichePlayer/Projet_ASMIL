@@ -46,7 +46,8 @@ const createAttendance = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true
+                                module: true,
+                                teacher: true
                             }
                         }
                     }
@@ -95,7 +96,8 @@ const getAllAttendances = async (req, res) => {
                             student: true,
                             session: {
                                 include: {
-                                    formation: true
+                                    module: true,
+                                    teacher: true
                                 }
                             }
                         }
@@ -135,7 +137,7 @@ const getAttendanceById = async (req, res) => {
                         student: true,
                         session: {
                             include: {
-                                formation: true,
+                                module: true,
                                 teacher: true
                             }
                         }
@@ -331,6 +333,124 @@ const bulkCreateAttendances = async (req, res) => {
     }
 };
 
+/**
+ * Obtenir les présences d'une session pour une date donnée
+ */
+const getAttendancesBySession = async (req, res) => {
+    try {
+        const { session_id } = req.params;
+        const { date } = req.query;
+
+        // Récupérer les inscriptions de cette session
+        const enrollments = await prisma.enrollment.findMany({
+            where: { session_id: parseInt(session_id) },
+            include: {
+                student: true
+            }
+        });
+
+        const enrollmentIds = enrollments.map(e => e.id);
+
+        // Construire le filtre pour les présences
+        const where = {
+            enrollment_id: { in: enrollmentIds }
+        };
+
+        if (date) {
+            where.date = new Date(date);
+        }
+
+        const attendances = await prisma.attendance.findMany({
+            where,
+            orderBy: { date: 'desc' },
+            include: {
+                enrollment: {
+                    include: {
+                        student: true
+                    }
+                }
+            }
+        });
+
+        res.json({
+            attendances,
+            enrollments,
+            session_id: parseInt(session_id)
+        });
+    } catch (error) {
+        console.error('Erreur récupération présences par session:', error);
+        res.status(500).json({ message: 'Échec de la récupération des présences', error: error.message });
+    }
+};
+
+/**
+ * Obtenir les statistiques globales de présence
+ */
+const getAttendanceStats = async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+
+        const where = {};
+        if (start_date && end_date) {
+            where.date = {
+                gte: new Date(start_date),
+                lte: new Date(end_date)
+            };
+        }
+
+        const attendances = await prisma.attendance.findMany({ where });
+
+        const total = attendances.length;
+        const present = attendances.filter(a => a.status === 'présent').length;
+        const absent = attendances.filter(a => a.status === 'absent').length;
+        const late = attendances.filter(a => a.status === 'retard').length;
+        const excused = attendances.filter(a => a.status === 'excusé').length;
+
+        const attendanceRate = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+        const absentRate = total > 0 ? ((absent / total) * 100).toFixed(2) : 0;
+
+        // Statistiques par jour (derniers 30 jours)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const recentAttendances = await prisma.attendance.findMany({
+            where: {
+                date: { gte: thirtyDaysAgo }
+            },
+            orderBy: { date: 'asc' }
+        });
+
+        // Grouper par date
+        const dailyStats = {};
+        recentAttendances.forEach(att => {
+            const dateStr = att.date.toISOString().split('T')[0];
+            if (!dailyStats[dateStr]) {
+                dailyStats[dateStr] = { présent: 0, absent: 0, retard: 0, excusé: 0 };
+            }
+            dailyStats[dateStr][att.status] = (dailyStats[dateStr][att.status] || 0) + 1;
+        });
+
+        res.json({
+            statistics: {
+                total,
+                present,
+                absent,
+                late,
+                excused,
+                attendanceRate: `${attendanceRate}%`,
+                absentRate: `${absentRate}%`
+            },
+            dailyStats: Object.entries(dailyStats).map(([date, stats]) => ({
+                date,
+                ...stats
+            }))
+        });
+    } catch (error) {
+        console.error('Erreur statistiques présence:', error);
+        res.status(500).json({ message: 'Échec du calcul des statistiques', error: error.message });
+    }
+};
+
 module.exports = {
     createAttendance,
     getAllAttendances,
@@ -338,5 +458,7 @@ module.exports = {
     updateAttendance,
     deleteAttendance,
     getStudentAttendanceRate,
-    bulkCreateAttendances
+    bulkCreateAttendances,
+    getAttendancesBySession,
+    getAttendanceStats
 };

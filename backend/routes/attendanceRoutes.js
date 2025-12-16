@@ -7,7 +7,9 @@ const {
     updateAttendance,
     deleteAttendance,
     getStudentAttendanceRate,
-    bulkCreateAttendances
+    bulkCreateAttendances,
+    getAttendancesBySession,
+    getAttendanceStats
 } = require('../controllers/attendanceController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
@@ -63,5 +65,21 @@ router.put('/:id', authorizeRole(['Admin', 'Gestionnaire']), updateAttendance);
  * @access  Admin
  */
 router.delete('/:id', authorizeRole(['Admin']), deleteAttendance);
+
+/**
+ * @route   GET /api/attendances/session/:session_id
+ * @desc    Obtenir les présences d'une session
+ * @access  Admin, Gestionnaire
+ * @query   date - Date optionnelle pour filtrer
+ */
+router.get('/session/:session_id', authorizeRole(['Admin', 'Gestionnaire']), getAttendancesBySession);
+
+/**
+ * @route   GET /api/attendances/stats/global
+ * @desc    Obtenir les statistiques globales de présence
+ * @access  Admin, Gestionnaire
+ * @query   start_date, end_date - Période optionnelle
+ */
+router.get('/stats/global', authorizeRole(['Admin', 'Gestionnaire']), getAttendanceStats);
 
 module.exports = router;
