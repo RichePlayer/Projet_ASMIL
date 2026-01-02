@@ -21,10 +21,12 @@ import { Badge } from "@/components/ui/badge";
 
 import FormationFormDialog from "@/components/formations/FormationFormDialog";
 import FormationDetailDialog from "@/components/formations/FormationDetailDialog";
+import { useTranslation } from 'react-i18next';
 
 import Swal from 'sweetalert2';
 
 export default function Formations() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -157,8 +159,8 @@ export default function Formations() {
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Formations</h1>
-          <p className="text-slate-600">Gérez votre catalogue</p>
+          <h1 className="text-4xl font-black text-slate-900">{t('formations.title')}</h1>
+          <p className="text-slate-600">{t('formations.subtitle')}</p>
         </div>
 
         <Button
@@ -169,49 +171,85 @@ export default function Formations() {
           className="bg-red-600 hover:bg-red-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Nouvelle Formation
+          {t('formations.addFormation')}
         </Button>
       </div>
 
       {/* STATS */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card className="bg-red-50 border-0 shadow">
-          <CardContent className="p-5 flex justify-between">
-            <div>
-              <p className="text-sm text-red-700">Total</p>
-              <p className="text-3xl font-bold">{stats.total}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <BookOpen className="h-32 w-32 text-red-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('common.total')}</span>
             </div>
-            <BookOpen className="h-10 w-10 text-red-600" />
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('formations.stats.totalFormations')}</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</h3>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-blue-50 border-0 shadow">
-          <CardContent className="p-5 flex justify-between">
-            <div>
-              <p className="text-sm text-blue-700">Certifiantes</p>
-              <p className="text-3xl font-bold">{stats.certifiantes}</p>
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-blue-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <TrendingUp className="h-32 w-32 text-blue-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <TrendingUp className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('formations.filters.certifying')}</span>
             </div>
-            <TrendingUp className="h-10 w-10 text-blue-600" />
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('formations.stats.certifying')}</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.certifiantes}</h3>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-50 border-0 shadow">
-          <CardContent className="p-5 flex justify-between">
-            <div>
-              <p className="text-sm text-purple-700">Diplômantes</p>
-              <p className="text-3xl font-bold">{stats.diplomantes}</p>
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-purple-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <Users className="h-32 w-32 text-purple-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl text-white shadow-lg shadow-purple-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <Users className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('formations.filters.diploma')}</span>
             </div>
-            <Users className="h-10 w-10 text-purple-600" />
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('formations.stats.diploma')}</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.diplomantes}</h3>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-green-50 border-0 shadow">
-          <CardContent className="p-5 flex justify-between">
-            <div>
-              <p className="text-sm text-green-700">Services</p>
-              <p className="text-3xl font-bold">{stats.services}</p>
+        <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+            <Clock className="h-32 w-32 text-emerald-600" />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                <Clock className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('formations.stats.services')}</span>
             </div>
-            <Clock className="h-10 w-10 text-green-600" />
+            <div>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('formations.stats.services')}</p>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.services}</h3>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -221,7 +259,7 @@ export default function Formations() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 text-slate-400 h-4 w-4" />
           <Input
-            placeholder="Rechercher une formation..."
+            placeholder={t('formations.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -233,10 +271,10 @@ export default function Formations() {
           onChange={(e) => setSelectedType(e.target.value)}
           className="border p-2 rounded-lg"
         >
-          <option value="all">Tous types</option>
-          <option value="certifiante">Certifiante</option>
-          <option value="diplomante">Diplômante</option>
-          <option value="service">Service</option>
+          <option value="all">{t('formations.filters.allTypes')}</option>
+          <option value="certifiante">{t('formations.filters.certifying')}</option>
+          <option value="diplomante">{t('formations.filters.diploma')}</option>
+          <option value="service">{t('formations.filters.service')}</option>
         </select>
 
         <select
@@ -244,7 +282,7 @@ export default function Formations() {
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="border p-2 rounded-lg"
         >
-          <option value="all">Toutes catégories</option>
+          <option value="all">{t('formations.filters.allCategories')}</option>
           {categories.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -259,7 +297,7 @@ export default function Formations() {
       ) : filteredFormations.length === 0 ? (
         <Card className="p-10 text-center shadow">
           <BookOpen className="h-14 w-14 mx-auto text-red-600 opacity-60" />
-          <p className="text-slate-600 mt-2">Aucune formation trouvée</p>
+          <p className="text-slate-600 mt-2">{t('formations.card.noFormationFound')}</p>
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -338,7 +376,7 @@ export default function Formations() {
                     {formation.title}
                   </CardTitle>
                   <p className="text-sm text-slate-500">
-                    {formation.category || "Sans catégorie"}
+                    {formation.category || t('formations.noCategory')}
                   </p>
                 </CardHeader>
 
@@ -349,15 +387,15 @@ export default function Formations() {
 
                   <div className="grid grid-cols-3 text-center text-sm">
                     <div>
-                      <p className="text-slate-500">Durée</p>
-                      <p className="font-bold">{formation.duration_months} mois</p>
+                      <p className="text-slate-500">{t('formations.card.duration')}</p>
+                      <p className="font-bold">{formation.duration_months} {t('formations.card.months')}</p>
                     </div>
                     <div>
-                      <p className="text-slate-500">Modules</p>
+                      <p className="text-slate-500">{t('formations.modules')}</p>
                       <p className="font-bold">{formationModules.length}</p>
                     </div>
                     <div>
-                      <p className="text-slate-500">Sessions</p>
+                      <p className="text-slate-500">{t('formations.sessions')}</p>
                       <p className="font-bold">{formationSessions.length}</p>
                     </div>
                   </div>
@@ -371,19 +409,19 @@ export default function Formations() {
 
                   <div className="pt-3 border-t space-y-1">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Droit</span>
+                      <span className="text-slate-500">{t('formations.card.registrationFee')}</span>
                       <span className="font-semibold text-slate-700">
                         {parseFloat(formation.registration_fee || 0).toLocaleString()} Ar
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Écolage</span>
+                      <span className="text-slate-500">{t('formations.card.tuitionFee')}</span>
                       <span className="font-semibold text-slate-700">
                         {parseFloat(formation.tuition_fee || 0).toLocaleString()} Ar
                       </span>
                     </div>
                     <div className="flex justify-between pt-1 border-t border-dashed">
-                      <span className="text-xs font-bold text-slate-400 uppercase">Total</span>
+                      <span className="text-xs font-bold text-slate-400 uppercase">{t('formations.card.total')}</span>
                       <span className="font-bold text-red-600">
                         {(parseFloat(formation.tuition_fee || 0) + parseFloat(formation.registration_fee || 0)).toLocaleString()} Ar
                       </span>

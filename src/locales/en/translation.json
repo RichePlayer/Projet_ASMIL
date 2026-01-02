@@ -61,7 +61,34 @@
         "selectAll": "Select all",
         "deselectAll": "Deselect all",
         "refresh": "Refresh",
-        "print": "Print"
+        "print": "Print",
+        "administration": "Administration",
+        "management": "Management"
+    },
+    "secretaryDashboard": {
+        "title": "Dashboard",
+        "subtitle": "Overview of the institute's activity",
+        "totalRevenue": "Total Revenue",
+        "issuedInvoices": "Issued Invoices",
+        "enrolledStudents": "Enrolled Students",
+        "activeEnrollments": "Active Enrollments",
+        "revenueOverview": "Revenue Overview",
+        "revenueOverviewDesc": "Financial evolution over the last 6 months",
+        "recentTransactions": "Recent Transactions",
+        "recentTransactionsDesc": "Latest payments received",
+        "performance": "Performance",
+        "performanceDesc": "Key success indicators",
+        "forecast": "Forecast",
+        "average3Months": "Average (3 months)",
+        "projection": "Projection",
+        "estimatedProgress": "Estimated progress",
+        "basedOnHistory": "Based on recent history",
+        "quickActions": "Quick Actions",
+        "quickActionsDesc": "Quick access to main features",
+        "newEnrollment": "New Enrollment",
+        "newPayment": "New Payment",
+        "issueInvoice": "Issue Invoice",
+        "viewCertificates": "View Certificates"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -70,6 +97,7 @@
         "statistics": "Statistics",
         "recentActivities": "Recent Activities",
         "quickActions": "Quick Actions",
+        "quickActionsDesc": "Quick access to main features",
         "totalStudents": "Total Students",
         "totalEnrollments": "Total Enrollments",
         "totalRevenue": "Total Revenue",
@@ -80,57 +108,123 @@
         "newUser": "New User",
         "monthlyReport": "Monthly Report",
         "systemBackup": "System Backup",
-        "viewLogs": "View Logs"
+        "viewLogs": "View Logs",
+        "vsLastMonth": "vs last month",
+        "vsLastYear": "vs last year",
+        "thisMonth": "this month",
+        "successRate": "Success Rate",
+        "issuedInvoices": "Issued Invoices",
+        "globalTotal": "Global total",
+        "activeEnrollments": "Active Enrollments",
+        "inProgress": "In progress",
+        "teachers": "Teachers",
+        "active": "Active",
+        "invoices": "invoices",
+        "revenueOverview": "Revenue Overview",
+        "revenueOverviewDesc": "Financial evolution over the last 6 months",
+        "recentTransactions": "Recent Transactions",
+        "recentTransactionsDesc": "Latest payments received",
+        "performance": "Performance",
+        "performanceDesc": "Key success indicators",
+        "forecast": "Forecast",
+        "average3Months": "Average (3 months)",
+        "projection": "Projection",
+        "estimatedProgress": "Estimated progress",
+        "basedOnHistory": "Based on recent history",
+        "systemStatus": "System Status",
+        "lastBackup": "Last backup",
+        "hoursAgo": "2h ago",
+        "activeUsers": "Active users"
     },
     "students": {
         "title": "Students",
-        "addStudent": "Add Student",
+        "subtitle": "Manage all your students",
+        "addStudent": "New Student",
         "editStudent": "Edit Student",
         "studentDetails": "Student Details",
         "studentList": "Student List",
         "firstName": "First Name",
         "lastName": "Last Name",
+        "fullName": "Full Name",
         "email": "Email",
         "phone": "Phone",
         "dateOfBirth": "Date of Birth",
         "address": "Address",
+        "registrationNumber": "Registration No.",
         "registrationDate": "Registration Date",
         "status": "Status",
         "enrollments": "Enrollments",
         "payments": "Payments",
         "grades": "Grades",
-        "attendance": "Attendance"
+        "attendance": "Attendance",
+        "unknownStudent": "Unknown student",
+        "filters": {
+            "all": "All",
+            "active": "Active",
+            "inactive": "Inactive",
+            "graduated": "Graduated"
+        }
     },
     "enrollments": {
         "title": "Enrollments",
+        "subtitle": "Manage student enrollments to sessions",
         "addEnrollment": "New Enrollment",
         "editEnrollment": "Edit Enrollment",
         "enrollmentDetails": "Enrollment Details",
         "student": "Student",
         "formation": "Formation",
         "session": "Session",
+        "sessionModule": "Session / Module",
         "enrollmentDate": "Enrollment Date",
         "status": "Status",
         "totalAmount": "Total Amount",
         "amountPaid": "Amount Paid",
-        "balance": "Balance",
-        "paymentStatus": "Payment Status"
+        "balance": "Balance Due",
+        "paymentStatus": "Payment Status",
+        "unknownSession": "Unknown session",
+        "stats": {
+            "activeEnrollments": "Active Enrollments",
+            "collectedRevenue": "Collected Revenue",
+            "balance": "Balance Due"
+        },
+        "filters": {
+            "all": "All",
+            "pending": "Pending",
+            "active": "Active",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        }
     },
     "payments": {
         "title": "Payments",
+        "subtitle": "Manage enrollment payments",
         "addPayment": "New Payment",
         "paymentDetails": "Payment Details",
         "amount": "Amount",
-        "paymentDate": "Payment Date",
+        "paymentDate": "Date",
         "paymentMethod": "Payment Method",
+        "method": "Method",
         "reference": "Reference",
         "invoice": "Invoice",
+        "invoiceNumber": "Invoice No.",
         "student": "Student",
         "enrollment": "Enrollment",
         "cash": "Cash",
         "card": "Card",
         "transfer": "Transfer",
-        "check": "Check"
+        "check": "Check",
+        "mobileMoney": "Mobile Money",
+        "unknownStudent": "Unknown student",
+        "unknownFormation": "Unknown formation",
+        "exportPdf": "Export PDF",
+        "stats": {
+            "totalCollected": "Total Collected",
+            "paymentCount": "Number of Payments",
+            "averagePayment": "Average Payment"
+        },
+        "filters": {
+            "all": "All"
+        }
     },
     "invoices": {
         "title": "Invoices",
@@ -147,18 +241,39 @@
         "overdue": "Overdue"
     },
     "grades": {
-        "title": "Grades",
+        "title": "Grades & Evaluations",
+        "subtitle": "Manage grades and track performance",
         "addGrade": "Add Grade",
         "student": "Student",
         "module": "Module",
         "grade": "Grade",
+        "evaluation": "Evaluation",
         "maxGrade": "Max Grade",
         "percentage": "Percentage",
+        "coefficient": "Coefficient",
         "remarks": "Remarks",
-        "gradeDate": "Grade Date"
+        "gradeDate": "Grade Date",
+        "selectSession": "Select a Session",
+        "chooseSession": "Choose a session...",
+        "selectSessionToView": "Select a session to view grades",
+        "gradeList": "Grade List",
+        "ranking": "Ranking",
+        "distribution": "Distribution",
+        "studentRanking": "Student Ranking",
+        "gradeDistribution": "Grade Distribution",
+        "evaluations": "evaluation(s)",
+        "stats": {
+            "totalGrades": "Total Grades",
+            "generalAverage": "General Average",
+            "evaluated": "Evaluated",
+            "students": "Students",
+            "successRate": "Success Rate",
+            "bestGrade": "Best Grade"
+        }
     },
     "attendance": {
         "title": "Attendance",
+        "subtitle": "Manage student attendance",
         "markAttendance": "Mark Attendance",
         "student": "Student",
         "session": "Session",
@@ -167,21 +282,57 @@
         "present": "Present",
         "absent": "Absent",
         "late": "Late",
-        "excused": "Excused"
+        "excused": "Excused",
+        "refresh": "Refresh",
+        "exportPdf": "Export PDF",
+        "sheet": "Sheet",
+        "history": "History",
+        "byStudent": "By Student",
+        "stats": "Statistics",
+        "attendanceSheet": "Attendance Sheet",
+        "attendanceHistory": "Attendance History",
+        "studentView": "Student View",
+        "monthlyStats": "Monthly Statistics",
+        "globalDistribution": "Global Distribution",
+        "detailedStats": "Detailed Statistics",
+        "selectSession": "Select a Session",
+        "chooseSession": "Choose a session...",
+        "selectSessionToStart": "Select a session to start",
+        "noHistory": "No history",
+        "noStudentFound": "No student found",
+        "searchPlaceholder": "Search by name or registration number...",
+        "records": "records",
+        "totalRecords": "Total records"
     },
     "certificates": {
         "title": "Certificates",
-        "generateCertificate": "Generate Certificate",
-        "certificateNumber": "Certificate Number",
+        "subtitle": "Certificate management and automatic generation",
+        "generateCertificate": "New Certification",
+        "certificateNumber": "Certificate No.",
         "student": "Student",
         "formation": "Formation",
         "issueDate": "Issue Date",
-        "download": "Download"
+        "download": "Download",
+        "view": "View",
+        "revoke": "Revoke",
+        "certificateList": "Certificate List",
+        "noCertificateFound": "No certificate found",
+        "searchPlaceholder": "Search by student or certificate number...",
+        "grade": "Grade",
+        "attendanceRate": "Attendance",
+        "issuedOn": "Issued on",
+        "stats": {
+            "activeCertificates": "Active Certificates",
+            "eligible": "Eligible",
+            "revoked": "Revoked"
+        }
     },
     "announcements": {
         "title": "Announcements",
+        "subtitle": "Communicate with your students and trainers",
         "addAnnouncement": "New Announcement",
         "editAnnouncement": "Edit Announcement",
+        "refresh": "Refresh",
         "announcementTitle": "Title",
         "content": "Content",
         "publishDate": "Publish Date",
@@ -189,7 +340,40 @@
         "priority": "Priority",
         "high": "High",
         "medium": "Medium",
-        "low": "Low"
+        "low": "Low",
+        "type": "Type",
+        "status": "Status",
+        "published": "Published",
+        "draft": "Draft",
+        "expired": "Expired",
+        "urgent": "Urgent",
+        "events": "Events",
+        "noAnnouncementFound": "No announcement found",
+        "modifyFilters": "Modify filters or create a new announcement",
+        "expiresOn": "Expires on",
+        "expiredOn": "Expired on",
+        "announcements": "announcement(s)",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "exportPdf": "Export PDF",
+        "filters": {
+            "allTypes": "All types",
+            "allStatus": "All statuses",
+            "information": "Information",
+            "urgent": "Urgent",
+            "event": "Event",
+            "sessionOpen": "Open Session",
+            "published": "Published",
+            "drafts": "Drafts",
+            "expired": "Expired"
+        },
+        "stats": {
+            "totalAnnouncements": "Total Announcements",
+            "published": "Published",
+            "urgent": "Urgent",
+            "events": "Events",
+            "expired": "Expired"
+        }
     },
     "timetable": {
         "title": "Timetable",
@@ -210,21 +394,46 @@
         "sunday": "Sunday"
     },
     "users": {
-        "title": "Users",
+        "title": "User Management",
+        "subtitle": "Manage Admin and Secretary accounts",
         "addUser": "New User",
         "editUser": "Edit User",
+        "editUserDesc": "Edit user information",
+        "createUser": "New User",
+        "createUserDesc": "Create a new user account",
         "fullName": "Full Name",
         "email": "Email",
         "role": "Role",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
         "status": "Status",
         "lastLogin": "Last Login",
+        "never": "Never",
         "createdAt": "Created At",
-        "admin": "Administrator",
-        "secretary": "Secretary",
-        "resetPassword": "Reset Password"
+        "admin": "Admin",
+        "secretary": "Secretary (Manager)",
+        "resetPassword": "Reset Password",
+        "resetPasswordTitle": "Reset Password",
+        "resetPasswordDesc": "Set a new password for",
+        "newPassword": "New Password",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "usersList": "Users",
+        "usersListDesc": "Complete list of system users",
+        "filters": {
+            "allRoles": "All Roles",
+            "allStatus": "All Status",
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "table": {
+            "name": "Name",
+            "role": "Role"
+        }
     },
     "teachers": {
         "title": "Teachers",
+        "subtitle": "Manage your teaching team",
         "addTeacher": "New Teacher",
         "editTeacher": "Edit Teacher",
         "fullName": "Full Name",
@@ -232,10 +441,31 @@
         "phone": "Phone",
         "specialties": "Specialties",
         "availability": "Availability",
-        "hireDate": "Hire Date"
+        "hireDate": "Hire Date",
+        "viewDetails": "View details",
+        "stats": {
+            "totalTeachers": "Total Teachers",
+            "active": "Active",
+            "onLeave": "On Leave"
+        },
+        "status": {
+            "active": "active",
+            "inactive": "inactive",
+            "leave": "leave"
+        },
+        "filters": {
+            "all": "All",
+            "active": "Active",
+            "inactive": "Inactive",
+            "leave": "Leave"
+        },
+        "table": {
+            "teacher": "Teacher"
+        }
     },
     "formations": {
         "title": "Formations",
+        "subtitle": "Manage your catalog",
         "addFormation": "New Formation",
         "editFormation": "Edit Formation",
         "formationName": "Formation Name",
@@ -244,19 +474,53 @@
         "price": "Price",
         "description": "Description",
         "modules": "Modules",
-        "sessions": "Sessions"
+        "sessions": "Sessions",
+        "searchPlaceholder": "Search a formation...",
+        "noCategory": "No category",
+        "stats": {
+            "totalFormations": "Total Formations",
+            "certifying": "Certifying",
+            "diploma": "Diploma",
+            "services": "Services"
+        },
+        "filters": {
+            "allTypes": "All types",
+            "certifying": "Certifying",
+            "diploma": "Diploma",
+            "service": "Service",
+            "allCategories": "All categories"
+        },
+        "card": {
+            "duration": "Duration",
+            "months": "months",
+            "totalHours": "h total",
+            "registrationFee": "Registration",
+            "tuitionFee": "Tuition",
+            "total": "Total",
+            "noFormationFound": "No formation found"
+        }
     },
     "modules": {
         "title": "Modules",
+        "subtitle": "Manage your training modules",
         "addModule": "New Module",
         "editModule": "Edit Module",
         "moduleName": "Module Name",
         "formation": "Formation",
         "duration": "Duration",
-        "description": "Description"
+        "description": "Description",
+        "hours": "hours",
+        "title_col": "Title",
+        "unknownFormation": "Unknown formation",
+        "stats": {
+            "totalModules": "Total Modules",
+            "activeFormations": "Active Formations",
+            "totalHours": "Total Hours"
+        }
     },
     "sessions": {
         "title": "Sessions",
+        "subtitle": "Plan and manage your training sessions",
         "addSession": "New Session",
         "editSession": "Edit Session",
         "sessionName": "Session Name",
@@ -265,15 +529,70 @@
         "startDate": "Start Date",
         "endDate": "End Date",
         "capacity": "Capacity",
-        "enrolled": "Enrolled"
+        "enrolled": "Enrolled",
+        "grid": "Grid",
+        "calendar": "Calendar",
+        "noSessionFound": "No session found",
+        "statusFilters": {
+            "all": "All",
+            "upcoming": "Upcoming",
+            "ongoing": "Ongoing",
+            "completed": "Completed"
+        }
     },
     "logs": {
         "title": "Audit Logs",
+        "subtitle": "Complete system action history",
         "action": "Action",
         "user": "User",
         "timestamp": "Timestamp",
+        "date": "Date/Time",
         "details": "Details",
-        "ipAddress": "IP Address"
+        "ipAddress": "IP Address",
+        "clearOldLogs": "Clear old logs",
+        "category": "Category",
+        "period": "Period",
+        "noLogsFound": "No logs found",
+        "page": "Page",
+        "pageOf": "of",
+        "logsHistory": "System action history",
+        "searchPlaceholder": "Search in logs...",
+        "system": "System",
+        "stats": {
+            "totalLogs": "Total Logs",
+            "today": "Today",
+            "thisWeek": "This Week",
+            "failedLogins": "Failed Logins"
+        },
+        "filters": {
+            "allCategories": "All categories",
+            "auth": "Authentication",
+            "users": "Users",
+            "students": "Students",
+            "teachers": "Teachers",
+            "invoices": "Invoices",
+            "payments": "Payments",
+            "system": "System",
+            "allPeriods": "All periods",
+            "today": "Today",
+            "thisWeek": "This week",
+            "thisMonth": "This month"
+        },
+        "actions": {
+            "login": "Login",
+            "logout": "Logout",
+            "loginFailed": "Failed login",
+            "create": "Create",
+            "update": "Update",
+            "delete": "Delete",
+            "activate": "Activate",
+            "deactivate": "Deactivate",
+            "passwordReset": "Password reset",
+            "settingsUpdate": "Settings update",
+            "backupCreate": "Backup create",
+            "backupRestore": "Backup restore",
+            "dataExport": "Data export"
+        }
     },
     "backups": {
         "title": "Backups",

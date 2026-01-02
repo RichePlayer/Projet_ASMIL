@@ -18,8 +18,10 @@ import DataTable from "@/components/ui/data-table";
 import ModuleFormDialog from "@/components/modules/ModuleFormDialog";
 import { toast } from "sonner";
 import Swal from 'sweetalert2';
+import { useTranslation } from 'react-i18next';
 
 export default function Modules() {
+    const { t } = useTranslation();
     const [showForm, setShowForm] = useState(false);
     const [editingModule, setEditingModule] = useState(null);
     const [viewModule, setViewModule] = useState(null);
@@ -72,42 +74,79 @@ export default function Modules() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-4xl font-black">Modules</h1>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-black text-slate-900">{t('modules.title')}</h1>
+                    <p className="text-slate-600 mt-1">{t('modules.subtitle')}</p>
+                </div>
                 <Button
                     onClick={() => {
                         setEditingModule(null);
                         setShowForm(true);
                     }}
-                    className="bg-red-600 hover:bg-red-700"
+                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nouveau Module
+                    {t('modules.addModule')}
                 </Button>
             </div>
 
             {/* Stats */}
-            <div className="grid md:grid-cols-3 gap-4">
-                <Card className="border-0 shadow-lg bg-red-50">
-                    <CardContent className="p-6 flex justify-between">
-                        <div>
-                            <p className="text-sm text-red-700">Total Modules</p>
-                            <h3 className="text-3xl font-bold text-red-900">{modules.length}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-red-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <BookOpen className="h-32 w-32 text-red-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <BookOpen className="h-6 w-6" />
+                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('common.total')}</span>
                         </div>
-                        <div className="p-3 bg-red-600 rounded-xl">
-                            <BookOpen className="text-white" />
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('modules.stats.totalModules')}</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{modules.length}</h3>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg bg-green-50">
-                    <CardContent className="p-6 flex justify-between">
-                        <div>
-                            <p className="text-sm text-green-700">Formations</p>
-                            <h3 className="text-3xl font-bold text-green-900">{formations.length}</h3>
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-emerald-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <BookOpen className="h-32 w-32 text-emerald-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <BookOpen className="h-6 w-6" />
+                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('formations.title')}</span>
                         </div>
-                        <div className="p-3 bg-green-600 rounded-xl">
-                            <BookOpen className="text-white" />
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('modules.stats.activeFormations')}</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{formations.length}</h3>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="stagger-item border-none shadow-lg bg-gradient-to-br from-white via-white to-blue-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <BookOpen className="h-32 w-32 text-blue-600" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <BookOpen className="h-6 w-6" />
+                            </div>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('modules.hours')}</span>
+                        </div>
+                        <div>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('modules.stats.totalHours')}</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{modules.reduce((sum, m) => sum + (m.hours || 0), 0)}h</h3>
                         </div>
                     </CardContent>
                 </Card>

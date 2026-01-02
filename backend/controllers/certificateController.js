@@ -19,7 +19,11 @@ const createCertificate = async (req, res) => {
         const {
             student_id,
             formation_id,
-            date_obtention
+            formation_title,
+            grade,
+            attendance_rate,
+            date_obtention,
+            issue_date
         } = req.body;
 
         // Vérifier que l'étudiant existe
@@ -30,34 +34,47 @@ const createCertificate = async (req, res) => {
             return res.status(404).json({ message: 'Étudiant non trouvé' });
         }
 
-        // Vérifier que la formation existe
-        const formation = await prisma.formation.findUnique({
-            where: { id: parseInt(formation_id) }
-        });
-        if (!formation) {
-            return res.status(404).json({ message: 'Formation non trouvée' });
+        // Vérifier que la formation existe (si fournie)
+        let formation = null;
+        if (formation_id) {
+            formation = await prisma.formation.findUnique({
+                where: { id: parseInt(formation_id) }
+            });
+            if (!formation) {
+                return res.status(404).json({ message: 'Formation non trouvée' });
+            }
         }
 
         // Vérifier si un certificat existe déjà pour cet étudiant et cette formation
-        const existing = await prisma.certificate.findFirst({
-            where: {
-                student_id: parseInt(student_id),
-                formation_id: parseInt(formation_id)
-            }
-        });
+        if (formation_id) {
+            const existing = await prisma.certificate.findFirst({
+                where: {
+                    student_id: parseInt(student_id),
+                    formation_id: parseInt(formation_id)
+                }
+            });
 
-        if (existing) {
-            return res.status(400).json({ message: 'Un certificat existe déjà pour cet étudiant et cette formation' });
+            if (existing) {
+                return res.status(400).json({ message: 'Un certificat existe déjà pour cet étudiant et cette formation' });
+            }
         }
 
         // Générer un numéro de certificat unique
         const certificate_number = await generateCertificateNumber();
 
+        // Générer un code de vérification
+        const verification_code = Math.random().toString(36).substring(2, 14).toUpperCase();
+
         const certificate = await prisma.certificate.create({
             data: {
                 certificate_number,
+                verification_code,
                 student_id: parseInt(student_id),
-                formation_id: parseInt(formation_id),
+                formation_id: formation_id ? parseInt(formation_id) : null,
+                formation_title: formation_title || formation?.title || 'Formation',
+                grade: grade ? parseFloat(grade) : null,
+                attendance_rate: attendance_rate ? parseFloat(attendance_rate) : null,
+                issue_date: issue_date ? new Date(issue_date) : new Date(),
                 date_obtention: date_obtention ? new Date(date_obtention) : new Date(),
                 status: 'valide'
             },

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import studentService from "@/services/studentService";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ export default function Students() {
   const [viewingStudent, setViewingStudent] = useState(null);
 
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // ✅ Load Students from backend API
   const { data: students = [], isLoading } = useQuery({
@@ -104,8 +106,8 @@ export default function Students() {
       {/* ------ HEADER ------ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Étudiants</h1>
-          <p className="text-slate-600 mt-1">Gérez tous vos étudiants</p>
+          <h1 className="text-4xl font-black text-slate-900">{t('students.title')}</h1>
+          <p className="text-slate-600 mt-1">{t('students.subtitle')}</p>
         </div>
         <Button
           onClick={() => {
@@ -115,7 +117,7 @@ export default function Students() {
           className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Nouvel Étudiant
+          {t('students.addStudent')}
         </Button>
       </div>
 
@@ -129,8 +131,10 @@ export default function Students() {
             className={statusFilter === status ? "bg-red-600 hover:bg-red-700" : ""}
           >
             {status === "all"
-              ? "Tous"
-              : status.charAt(0).toUpperCase() + status.slice(1)}
+              ? t('students.filters.all')
+              : status === "actif" ? t('students.filters.active')
+                : status === "inactif" ? t('students.filters.inactive')
+                  : t('students.filters.graduated')}
           </Button>
         ))}
       </div>
@@ -147,30 +151,30 @@ export default function Students() {
             columns={[
               {
                 key: 'registration_number',
-                label: 'N° Inscription',
+                label: t('students.registrationNumber'),
                 sortable: true,
               },
               {
                 key: 'name',
-                label: 'Nom Complet',
+                label: t('students.fullName'),
                 sortable: true,
                 render: (s) => `${s.first_name} ${s.last_name}`,
               },
               {
                 key: 'email',
-                label: 'Email',
+                label: t('students.email'),
                 sortable: true,
                 render: (s) => s.email || "-",
               },
               {
                 key: 'phone_parent',
-                label: 'Téléphone',
+                label: t('students.phone'),
                 sortable: true,
                 render: (s) => s.phone_parent || "-",
               },
               {
                 key: 'status',
-                label: 'Statut',
+                label: t('students.status'),
                 sortable: true,
                 render: (s) => (
                   <Badge
@@ -183,7 +187,7 @@ export default function Students() {
               },
               {
                 key: 'actions',
-                label: 'Actions',
+                label: t('common.actions'),
                 sortable: false,
                 searchable: false,
                 render: (s) => (

@@ -45,8 +45,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import Swal from 'sweetalert2';
+import { useTranslation } from 'react-i18next';
 
 export default function Users() {
+    const { t } = useTranslation();
     const { log } = useAuditLog();
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -304,12 +306,12 @@ export default function Users() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Gestion des Utilisateurs</h1>
-                    <p className="text-slate-500 mt-1">Gérer les comptes Admin et Secrétaire</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{t('users.title')}</h1>
+                    <p className="text-slate-500 mt-1">{t('users.subtitle')}</p>
                 </div>
                 <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-red-600 hover:bg-red-700 gap-2">
                     <UserPlus className="h-4 w-4" />
-                    Nouvel Utilisateur
+                    {t('users.addUser')}
                 </Button>
             </div>
 
@@ -320,24 +322,24 @@ export default function Users() {
                         {/* Role Filter */}
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
                             <SelectTrigger className="w-48">
-                                <SelectValue placeholder="Filtrer par rôle" />
+                                <SelectValue placeholder={t('users.filters.allRoles')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Tous les rôles</SelectItem>
-                                <SelectItem value="Admin">Admin</SelectItem>
-                                <SelectItem value="Gestionnaire">Gestionnaire</SelectItem>
+                                <SelectItem value="all">{t('users.filters.allRoles')}</SelectItem>
+                                <SelectItem value="Admin">{t('users.admin')}</SelectItem>
+                                <SelectItem value="Gestionnaire">{t('users.secretary')}</SelectItem>
                             </SelectContent>
                         </Select>
 
                         {/* Status Filter */}
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger className="w-48">
-                                <SelectValue placeholder="Filtrer par statut" />
+                                <SelectValue placeholder={t('users.filters.allStatus')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Tous les statuts</SelectItem>
-                                <SelectItem value="active">Actifs</SelectItem>
-                                <SelectItem value="inactive">Inactifs</SelectItem>
+                                <SelectItem value="all">{t('users.filters.allStatus')}</SelectItem>
+                                <SelectItem value="active">{t('users.filters.active')}</SelectItem>
+                                <SelectItem value="inactive">{t('users.filters.inactive')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -347,8 +349,8 @@ export default function Users() {
             {/* Users Table */}
             <Card className="border-none shadow-md">
                 <CardHeader>
-                    <CardTitle>Utilisateurs ({filteredUsers.length})</CardTitle>
-                    <CardDescription>Liste complète des utilisateurs du système</CardDescription>
+                    <CardTitle>{t('users.usersList')} ({filteredUsers.length})</CardTitle>
+                    <CardDescription>{t('users.usersListDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (

@@ -167,10 +167,15 @@ model Grade {
 model Certificate {
   id                 Int        @id @default(autoincrement())
   certificate_number String     @unique @db.VarChar(100)
+  verification_code  String?    @db.VarChar(50)
   student_id         Int?
   student            Student?   @relation(fields: [student_id], references: [id], onDelete: Cascade)
   formation_id       Int?
   formation          Formation? @relation(fields: [formation_id], references: [id])
+  formation_title    String?    @db.VarChar(200)
+  grade              Decimal?   @db.Decimal(5, 2)
+  attendance_rate    Decimal?   @db.Decimal(5, 2)
+  issue_date         DateTime?  @default(now()) @db.Date
   date_obtention     DateTime?  @default(now()) @db.Date
   status             String?    @default("valide") @db.VarChar(20)
   created_at         DateTime   @default(now())

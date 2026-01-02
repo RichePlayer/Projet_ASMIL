@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 // Services backend
 import attendanceService from "@/services/attendanceService";
 import sessionService from "@/services/sessionService";
@@ -29,6 +30,7 @@ export default function Attendance() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [historyFilter, setHistoryFilter] = useState("all");
+    const { t } = useTranslation();
 
     // Récupérer les sessions
     const { data: sessionsData, isLoading: sessionsLoading } = useQuery({
@@ -253,17 +255,17 @@ export default function Attendance() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900">Présences</h1>
-                    <p className="text-slate-600 mt-1">Gérez les présences de vos étudiants</p>
+                    <h1 className="text-4xl font-black text-slate-900">{t('attendance.title')}</h1>
+                    <p className="text-slate-600 mt-1">{t('attendance.subtitle')}</p>
                 </div>
                 <div className="flex gap-3">
                     <Button onClick={() => refetchAttendances()} variant="outline" className="border-slate-300">
                         <RefreshCw className="h-4 w-4 mr-2" />
-                        Actualiser
+                        {t('attendance.refresh')}
                     </Button>
                     <Button onClick={handleExportPDF} className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800">
                         <Download className="h-4 w-4 mr-2" />
-                        Exporter PDF
+                        {t('attendance.exportPdf')}
                     </Button>
                 </div>
             </div>
@@ -274,13 +276,13 @@ export default function Attendance() {
             {/* Tabs */}
             <Tabs defaultValue="sheet" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-                    <TabsTrigger value="sheet">Feuille</TabsTrigger>
+                    <TabsTrigger value="sheet">{t('attendance.sheet')}</TabsTrigger>
                     <TabsTrigger value="history">
-                        Historique
+                        {t('attendance.history')}
                         {attendances.length > 0 && <Badge variant="secondary" className="ml-2 text-xs">{attendances.length}</Badge>}
                     </TabsTrigger>
-                    <TabsTrigger value="student">Par Étudiant</TabsTrigger>
-                    <TabsTrigger value="stats">Statistiques</TabsTrigger>
+                    <TabsTrigger value="student">{t('attendance.byStudent')}</TabsTrigger>
+                    <TabsTrigger value="stats">{t('attendance.stats')}</TabsTrigger>
                 </TabsList>
 
                 {/* Sheet Tab */}
@@ -401,9 +403,9 @@ export default function Attendance() {
                                                         {att.notes && <p className="text-xs text-slate-500 mt-1 italic">💬 {att.notes}</p>}
                                                     </div>
                                                     <div className={`px-3 py-1 rounded-full text-sm font-medium ${att.status === "présent" ? "bg-green-100 text-green-800" :
-                                                            att.status === "absent" ? "bg-red-100 text-red-800" :
-                                                                att.status === "excusé" ? "bg-blue-100 text-blue-800" :
-                                                                    "bg-orange-100 text-orange-800"
+                                                        att.status === "absent" ? "bg-red-100 text-red-800" :
+                                                            att.status === "excusé" ? "bg-blue-100 text-blue-800" :
+                                                                "bg-orange-100 text-orange-800"
                                                         }`}>
                                                         {att.status}
                                                     </div>
@@ -489,9 +491,9 @@ export default function Attendance() {
                                                     </div>
                                                     <div className="text-right">
                                                         <div className={`text-2xl font-bold ${rate >= 90 ? "text-green-600" :
-                                                                rate >= 75 ? "text-blue-600" :
-                                                                    rate >= 60 ? "text-orange-600" :
-                                                                        "text-red-600"
+                                                            rate >= 75 ? "text-blue-600" :
+                                                                rate >= 60 ? "text-orange-600" :
+                                                                    "text-red-600"
                                                             }`}>
                                                             {rate}%
                                                         </div>
@@ -509,9 +511,9 @@ export default function Attendance() {
                                                                         {att.date && format(new Date(att.date), "d MMM yyyy", { locale: fr })}
                                                                     </span>
                                                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${att.status === "présent" ? "bg-green-100 text-green-800" :
-                                                                            att.status === "absent" ? "bg-red-100 text-red-800" :
-                                                                                att.status === "excusé" ? "bg-blue-100 text-blue-800" :
-                                                                                    "bg-orange-100 text-orange-800"
+                                                                        att.status === "absent" ? "bg-red-100 text-red-800" :
+                                                                            att.status === "excusé" ? "bg-blue-100 text-blue-800" :
+                                                                                "bg-orange-100 text-orange-800"
                                                                         }`}>
                                                                         {att.status}
                                                                     </span>

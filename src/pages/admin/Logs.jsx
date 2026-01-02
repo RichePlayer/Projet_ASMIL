@@ -22,8 +22,10 @@ import {
 import { getAllAuditLogs, getAuditStats, clearOldLogs } from "@/utils/auditLogApi";
 import { Search, Trash2, Shield, User, FileText, Settings, AlertCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { formatDate } from "@/utils/exportHelpers";
+import { useTranslation } from 'react-i18next';
 
 export default function Logs() {
+    const { t } = useTranslation();
     const [logs, setLogs] = useState([]);
     const [stats, setStats] = useState({
         total: 0,
@@ -191,13 +193,13 @@ export default function Logs() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Logs d'Audit</h1>
-                    <p className="text-slate-500 mt-1">Historique complet des actions système</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{t('logs.title')}</h1>
+                    <p className="text-slate-500 mt-1">{t('logs.subtitle')}</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleClearOldLogs} className="gap-2 text-red-600 hover:text-red-700">
                         <Trash2 className="h-4 w-4" />
-                        Vider anciens logs
+                        {t('logs.clearOldLogs')}
                     </Button>
                 </div>
             </div>
@@ -208,7 +210,7 @@ export default function Logs() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">Total Logs</p>
+                                <p className="text-sm text-slate-500">{t('logs.stats.totalLogs')}</p>
                                 <h3 className="text-2xl font-bold text-slate-900">{stats.total}</h3>
                             </div>
                             <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
@@ -222,7 +224,7 @@ export default function Logs() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-blue-600">Aujourd'hui</p>
+                                <p className="text-sm text-blue-600">{t('logs.stats.today')}</p>
                                 <h3 className="text-2xl font-bold text-blue-900">{stats.todayCount}</h3>
                             </div>
                             <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -236,7 +238,7 @@ export default function Logs() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-emerald-600">Cette semaine</p>
+                                <p className="text-sm text-emerald-600">{t('logs.stats.thisWeek')}</p>
                                 <h3 className="text-2xl font-bold text-emerald-900">{stats.weekCount}</h3>
                             </div>
                             <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
@@ -250,7 +252,7 @@ export default function Logs() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-red-600">Échecs connexion</p>
+                                <p className="text-sm text-red-600">{t('logs.stats.failedLogins')}</p>
                                 <h3 className="text-2xl font-bold text-red-900">{stats.failedLogins}</h3>
                             </div>
                             <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">

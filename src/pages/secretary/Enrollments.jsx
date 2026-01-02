@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import enrollmentService from "@/services/enrollmentService";
 import studentService from "@/services/studentService";
@@ -32,6 +33,7 @@ export default function Enrollments() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // ============================
   // FETCH DATA (Backend API)
@@ -106,15 +108,19 @@ export default function Enrollments() {
   };
 
   const getStudentName = (id) => {
-    const st = students.find((s) => s.id === id);
+    const studentsArr = Array.isArray(students) ? students : [];
+    const st = studentsArr.find((s) => s.id === id);
     return st ? `${st.first_name} ${st.last_name}` : "Étudiant inconnu";
   };
 
   const getSessionInfo = (id) => {
-    const ses = sessions.find((s) => s.id === id);
+    const sessionsArr = Array.isArray(sessions) ? sessions : [];
+    const modulesArr = Array.isArray(modules) ? modules : [];
+
+    const ses = sessionsArr.find((s) => s.id === id);
     if (!ses) return "Session inconnue";
 
-    const mod = modules.find((m) => m.id === ses.module_id);
+    const mod = modulesArr.find((m) => m.id === ses.module_id);
     return mod ? mod.title : `Session ${id}`;
   };
 
@@ -143,9 +149,9 @@ export default function Enrollments() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Inscriptions</h1>
+          <h1 className="text-4xl font-black text-slate-900">{t('enrollments.title')}</h1>
           <p className="text-slate-600 mt-1">
-            Gérez les inscriptions des étudiants aux sessions
+            {t('enrollments.subtitle')}
           </p>
         </div>
 
@@ -157,7 +163,7 @@ export default function Enrollments() {
           className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Nouvelle Inscription
+          {t('enrollments.addEnrollment')}
         </Button>
       </div>
 
@@ -176,7 +182,7 @@ export default function Enrollments() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Actives</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Inscriptions Actives</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('enrollments.stats.activeEnrollments')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalActive}</h3>
             </div>
           </CardContent>
@@ -195,7 +201,7 @@ export default function Enrollments() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Encaissés</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Revenus Encaissés</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('enrollments.stats.collectedRevenue')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{formatAmount(totalRevenue)} Ar</h3>
             </div>
           </CardContent>
@@ -214,7 +220,7 @@ export default function Enrollments() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Reste</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Reste à Payer</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('enrollments.stats.balance')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{formatAmount(totalPending)} Ar</h3>
             </div>
           </CardContent>

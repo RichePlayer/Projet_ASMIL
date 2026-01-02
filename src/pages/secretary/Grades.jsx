@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import gradeService from "@/services/gradeService";
 import enrollmentService from "@/services/enrollmentService";
 import sessionService from "@/services/sessionService";
@@ -54,6 +55,7 @@ export default function Grades() {
   const [selectedSession, setSelectedSession] = useState("");
 
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // Fetch grades
   const { data: gradesData, isLoading } = useQuery({
@@ -210,9 +212,9 @@ export default function Grades() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black text-slate-900">
-            Notes & Évaluations
+            {t('grades.title')}
           </h1>
-          <p className="text-slate-600 mt-1">Gérez les notes et suivez les performances</p>
+          <p className="text-slate-600 mt-1">{t('grades.subtitle')}</p>
         </div>
       </div>
 
@@ -232,7 +234,7 @@ export default function Grades() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Total</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Total Notes</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('grades.stats.totalGrades')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalGrades}</h3>
             </div>
           </CardContent>
@@ -252,7 +254,7 @@ export default function Grades() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Moyenne</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Moyenne Générale</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('grades.stats.generalAverage')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{averageGrade}<span className="text-xl">/20</span></h3>
             </div>
           </CardContent>
@@ -272,7 +274,7 @@ export default function Grades() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Évalués</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Étudiants</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('grades.stats.students')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{uniqueStudents}</h3>
             </div>
           </CardContent>
@@ -292,7 +294,7 @@ export default function Grades() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Réussite</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Taux de Réussite</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('grades.stats.successRate')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{successRate}<span className="text-xl">%</span></h3>
             </div>
           </CardContent>
@@ -312,7 +314,7 @@ export default function Grades() {
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Max</span>
             </div>
             <div>
-              <p className="text-slate-500 text-sm font-semibold mb-1">Meilleure Note</p>
+              <p className="text-slate-500 text-sm font-semibold mb-1">{t('grades.stats.bestGrade')}</p>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{bestGrade}<span className="text-xl">/20</span></h3>
             </div>
           </CardContent>

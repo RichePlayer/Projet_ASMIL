@@ -12,8 +12,10 @@ import SessionFormDialog from "@/components/sessions/SessionFormDialog";
 import SessionCard from "@/components/sessions/SessionCard";
 import SessionCalendarAdvanced from "@/components/sessions/SessionCalendarAdvanced";
 import Swal from 'sweetalert2';
+import { useTranslation } from 'react-i18next';
 
 export default function Sessions() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [viewMode, setViewMode] = useState("grid");
@@ -81,8 +83,8 @@ export default function Sessions() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Sessions</h1>
-          <p className="text-slate-600 mt-1">Planifiez et gérez vos sessions de formation</p>
+          <h1 className="text-4xl font-black text-slate-900">{t('sessions.title')}</h1>
+          <p className="text-slate-600 mt-1">{t('sessions.subtitle')}</p>
         </div>
         <Button
           onClick={() => {
@@ -92,7 +94,7 @@ export default function Sessions() {
           className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Nouvelle Session
+          {t('sessions.addSession')}
         </Button>
       </div>
 
@@ -125,8 +127,8 @@ export default function Sessions() {
       {/* View Toggle */}
       <Tabs value={viewMode} onValueChange={setViewMode}>
         <TabsList>
-          <TabsTrigger value="grid">Grille</TabsTrigger>
-          <TabsTrigger value="calendar">Calendrier</TabsTrigger>
+          <TabsTrigger value="grid">{t('sessions.grid')}</TabsTrigger>
+          <TabsTrigger value="calendar">{t('sessions.calendar')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="grid" className="mt-6">
@@ -135,7 +137,7 @@ export default function Sessions() {
           ) : filteredSessions.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
               <Calendar className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-              <p>Aucune session trouvée</p>
+              <p>{t('sessions.noSessionFound')}</p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

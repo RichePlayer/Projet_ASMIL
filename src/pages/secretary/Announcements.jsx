@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import announcementService from "@/services/announcementService";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ export default function Announcements() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // Load announcements from backend
   const { data: announcements = [], isLoading, refetch } = useQuery({
@@ -200,13 +202,13 @@ export default function Announcements() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Annonces</h1>
-          <p className="text-slate-600 mt-1">Communiquez avec vos étudiants et formateurs</p>
+          <h1 className="text-4xl font-black text-slate-900">{t('announcements.title')}</h1>
+          <p className="text-slate-600 mt-1">{t('announcements.subtitle')}</p>
         </div>
         <div className="flex gap-3">
           <Button onClick={() => refetch()} variant="outline" className="border-slate-300">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Actualiser
+            {t('announcements.refresh')}
           </Button>
           <Button
             onClick={() => {
@@ -216,7 +218,7 @@ export default function Announcements() {
             className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Nouvelle Annonce
+            {t('announcements.addAnnouncement')}
           </Button>
         </div>
       </div>
@@ -233,9 +235,9 @@ export default function Announcements() {
               <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <Megaphone className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Total</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('common.total')}</span>
             </div>
-            <p className="text-slate-500 text-sm font-semibold mb-1">Total Annonces</p>
+            <p className="text-slate-500 text-sm font-semibold mb-1">{t('announcements.stats.totalAnnouncements')}</p>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</h3>
           </CardContent>
         </Card>
@@ -250,9 +252,9 @@ export default function Announcements() {
               <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl text-white shadow-lg shadow-green-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <Eye className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Actives</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('common.active')}</span>
             </div>
-            <p className="text-slate-500 text-sm font-semibold mb-1">Publiées</p>
+            <p className="text-slate-500 text-sm font-semibold mb-1">{t('announcements.stats.published')}</p>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.published}</h3>
           </CardContent>
         </Card>
@@ -267,9 +269,9 @@ export default function Announcements() {
               <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <AlertTriangle className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Priorité</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('announcements.priority')}</span>
             </div>
-            <p className="text-slate-500 text-sm font-semibold mb-1">Urgentes</p>
+            <p className="text-slate-500 text-sm font-semibold mb-1">{t('announcements.stats.urgent')}</p>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.urgent}</h3>
           </CardContent>
         </Card>
@@ -284,9 +286,9 @@ export default function Announcements() {
               <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl text-white shadow-lg shadow-purple-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <Calendar className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Events</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('announcements.events')}</span>
             </div>
-            <p className="text-slate-500 text-sm font-semibold mb-1">Événements</p>
+            <p className="text-slate-500 text-sm font-semibold mb-1">{t('announcements.stats.events')}</p>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.events}</h3>
           </CardContent>
         </Card>
@@ -301,9 +303,9 @@ export default function Announcements() {
               <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl text-white shadow-lg shadow-orange-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                 <Clock className="h-6 w-6" />
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Passées</span>
+              <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('announcements.expired')}</span>
             </div>
-            <p className="text-slate-500 text-sm font-semibold mb-1">Expirées</p>
+            <p className="text-slate-500 text-sm font-semibold mb-1">{t('announcements.stats.expired')}</p>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.expired}</h3>
           </CardContent>
         </Card>

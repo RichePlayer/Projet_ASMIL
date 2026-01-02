@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import paymentService from "@/services/paymentService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +42,7 @@ export default function Payments() {
     const [selectedPayment, setSelectedPayment] = useState(null);
 
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     // Fetch Payments
     const { data: paymentsData = [], isLoading } = useQuery({
@@ -142,15 +144,15 @@ export default function Payments() {
             {/* HEADER */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900">Paiements</h1>
-                    <p className="text-slate-600 mt-1">Gérez les paiements des inscriptions</p>
+                    <h1 className="text-4xl font-black text-slate-900">{t('payments.title')}</h1>
+                    <p className="text-slate-600 mt-1">{t('payments.subtitle')}</p>
                 </div>
                 <Button
                     onClick={handleAddPayment}
                     className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nouveau Paiement
+                    {t('payments.addPayment')}
                 </Button>
             </div>
 

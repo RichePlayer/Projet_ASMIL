@@ -17,8 +17,10 @@ import DataTable from "@/components/ui/data-table";
 import TeacherFormDialog from "@/components/teachers/TeacherFormDialog";
 import TeacherDetailDialog from "@/components/teachers/TeacherDetailDialog";
 import Swal from 'sweetalert2';
+import { useTranslation } from 'react-i18next';
 
 export default function Teachers() {
+    const { t } = useTranslation();
     const [statusFilter, setStatusFilter] = useState("all");
     const [showForm, setShowForm] = useState(false);
     const [editingTeacher, setEditingTeacher] = useState(null);
@@ -78,8 +80,8 @@ export default function Teachers() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900">Enseignants</h1>
-                    <p className="text-slate-600 mt-1">Gérez votre équipe pédagogique</p>
+                    <h1 className="text-4xl font-black text-slate-900">{t('teachers.title')}</h1>
+                    <p className="text-slate-600 mt-1">{t('teachers.subtitle')}</p>
                 </div>
                 <Button
                     onClick={() => {
@@ -89,7 +91,7 @@ export default function Teachers() {
                     className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nouvel Enseignant
+                    {t('teachers.addTeacher')}
                 </Button>
             </div>
 
@@ -105,10 +107,10 @@ export default function Teachers() {
                             <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl text-white shadow-lg shadow-red-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                                 <Users className="h-6 w-6" />
                             </div>
-                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Total</span>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('common.total')}</span>
                         </div>
                         <div>
-                            <p className="text-slate-500 text-sm font-semibold mb-1">Total Enseignants</p>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('teachers.stats.totalTeachers')}</p>
                             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{teachers.length}</h3>
                         </div>
                     </CardContent>
@@ -124,10 +126,10 @@ export default function Teachers() {
                             <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                                 <Users className="h-6 w-6" />
                             </div>
-                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Actifs</span>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('teachers.stats.active')}</span>
                         </div>
                         <div>
-                            <p className="text-slate-500 text-sm font-semibold mb-1">Actifs</p>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('teachers.stats.active')}</p>
                             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{totalActive}</h3>
                         </div>
                     </CardContent>
@@ -143,10 +145,10 @@ export default function Teachers() {
                             <div className="p-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl text-white shadow-lg shadow-pink-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                                 <Users className="h-6 w-6" />
                             </div>
-                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">Congés</span>
+                            <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">{t('teachers.stats.onLeave')}</span>
                         </div>
                         <div>
-                            <p className="text-slate-500 text-sm font-semibold mb-1">En Congé</p>
+                            <p className="text-slate-500 text-sm font-semibold mb-1">{t('teachers.stats.onLeave')}</p>
                             <h3 className="text-3xl font-black text-slate-900 tracking-tight">{teachers.filter((t) => t.status === "congé").length}</h3>
                         </div>
                     </CardContent>
